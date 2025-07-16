@@ -83,20 +83,22 @@
       const setIncome = (income) => {
         setDesiredIncome(income);
         let updatedLines = [...lines];
-        let totalIncome = 0;
         let remainingIncome = income;
 
         // Рассчитываем минимальное количество людей для каждой линии
         for (let i = 0; i < updatedLines.length; i++) {
           if (rank >= i + 1) {
-            // Вычисляем минимальное количество людей для линии
-            let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i]));
+            let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); // Округляем вверх
             updatedLines[i] = minUsers;
             remainingIncome -= getLineBonus(minUsers, linePercents[i]);
             if (remainingIncome <= 0) break; // Если доход уже достигнут, не заполняем остальные линии
           }
         }
         setLines(updatedLines);
+
+        // Автоматическое изменение ранга, если требуется
+        const newRank = Math.min(updatedLines.length, 10); // Устанавливаем ранг так, чтобы он соответствовал количеству линий
+        setRank(newRank);
       };
 
       return (
