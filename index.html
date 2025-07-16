@@ -107,7 +107,7 @@
               <div key={index}>
                 <label>Кол-во Club members в {index + 1}-й линии:</label>
                 <input 
-                  type="number" 
+                  type="text" // Меняем на type="text" для удаления ведущих нулей
                   value={removeLeadingZero(lines[index].toString())} // Убираем ведущие нули
                   onChange={e => handleLineChange(index, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
