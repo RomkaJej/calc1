@@ -23,7 +23,6 @@
 
     function MLMCalculator() {
       // Изначальные данные
-      const [rank, setRank] = useState(1); // Ранг пользователя
       const [lines, setLines] = useState([0, 0, 0]);  // Начальные данные для 3 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
@@ -40,9 +39,7 @@
       const calculateBonus = () => {
         let totalBonus = 0;
         for (let i = 0; i < lines.length; i++) {
-          if (rank >= i + 1) {
-            totalBonus += getLineBonus(lines[i], linePercents[i]);
-          }
+          totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
       }
@@ -63,17 +60,6 @@
         setLines(updatedLines);
       };
 
-      // Валидация: ограничение линий в зависимости от ранга
-      useEffect(() => {
-        // Обрезаем количество линий, если ранг меньше числа доступных линий
-        const maxLines = rank;
-        const updatedLines = [...lines];
-        if (updatedLines.length > maxLines) {
-          updatedLines.splice(maxLines); // Убираем лишние линии
-        }
-        setLines(updatedLines);
-      }, [rank]);
-
       // Функция для удаления ведущих нулей
       const removeLeadingZero = (value) => {
         return value.replace(/^0+/, '') || '0'; // Убирает нули и ставит 0, если пусто
@@ -87,19 +73,26 @@
 
         // Рассчитываем минимальное количество людей для каждой линии
         for (let i = 0; i < updatedLines.length; i++) {
-          if (rank >= i + 1) {
-            let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); // Округляем вверх
-            updatedLines[i] = minUsers;
-            remainingIncome -= getLineBonus(minUsers, linePercents[i]);
-            if (remainingIncome <= 0) break; // Если доход уже достигнут, не заполняем остальные линии
-          }
+          if (remainingIncome <= 0) break;
+          let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); // Округляем вверх
+          updatedLines[i] = minUsers;
+          remainingIncome -= getLineBonus(minUsers, linePercents[i]);
         }
         setLines(updatedLines);
-
-        // Автоматическое изменение ранга, если требуется
-        const newRank = Math.min(updatedLines.length, 10); // Устанавливаем ранг так, чтобы он соответствовал количеству линий
-        setRank(newRank);
       };
+
+      // Функция для вычисления ранга на основе количества людей
+      const calculateRank = () => {
+        let maxRank = 0;
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i] > 0) {
+            maxRank = i + 1;
+          }
+        }
+        return maxRank;
+      };
+
+      const rank = calculateRank(); // Автоматическое вычисление ранга
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -138,14 +131,12 @@
           <div className="space-y-4 mt-6">
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
             <input 
-              type="range" 
-              min={1} 
-              max={10} 
+              type="text"
               value={rank} 
-              onChange={e => setRank(+e.target.value)} 
-              className="w-full bg-gray-200 rounded-lg"
+              readOnly 
+              className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
             />
-            <p className="text-center">{rank}</p>
+            <p className="text-center">Ранг: {rank}</p>
 
             {/* Поля для ввода количества участников в линиях */}
             {[...Array(rank)].map((_, index) => (
