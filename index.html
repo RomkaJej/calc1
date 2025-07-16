@@ -17,10 +17,10 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1 человеком
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [rank, setRank] = useState(1); // Ранг
-      
+
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
 
