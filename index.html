@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,7 +19,7 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([0, 0, 0]);  // Линии (массив для 1, 2 и 3 линии)
+      const [lines, setLines] = useState(Array(10).fill(0));  // 10 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [rank, setRank] = useState(1);  // Ранг
@@ -174,6 +173,92 @@
               </div>
             )}
 
+            {/* Продолжение для всех 10 линий */}
+            {lines[2] > 0 && (
+              <div>
+                <label>Кол-во Club members в 4-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[3].toString())} 
+                  onChange={e => handleLineChange(3, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[3] > 0 && (
+              <div>
+                <label>Кол-во Club members в 5-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[4].toString())} 
+                  onChange={e => handleLineChange(4, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[4] > 0 && (
+              <div>
+                <label>Кол-во Club members в 6-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[5].toString())} 
+                  onChange={e => handleLineChange(5, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {/* Повторить для остальных линий 7-10 */}
+            {lines[5] > 0 && (
+              <div>
+                <label>Кол-во Club members в 7-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[6].toString())} 
+                  onChange={e => handleLineChange(6, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[6] > 0 && (
+              <div>
+                <label>Кол-во Club members в 8-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[7].toString())} 
+                  onChange={e => handleLineChange(7, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[7] > 0 && (
+              <div>
+                <label>Кол-во Club members в 9-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[8].toString())} 
+                  onChange={e => handleLineChange(8, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[8] > 0 && (
+              <div>
+                <label>Кол-во Club members в 10-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[9].toString())} 
+                  onChange={e => handleLineChange(9, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
             <label>Сколько PV на одного человека:</label>
             <input 
               type="number" 
@@ -203,5 +288,4 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 </body>
-
 </html>
