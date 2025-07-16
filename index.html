@@ -27,7 +27,6 @@
       const [lines, setLines] = useState([3, 3, 3]);  // Начальные данные для 3 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
-      const [got3ClubInStart, setGot3ClubInStart] = useState(true);
 
       const linePercents = [
         0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 // Проценты для каждой линии
@@ -51,7 +50,9 @@
       const structuralBonus = calculateBonus();
       const gvBonus = getLineBonus(lines[0], 0.1); // gv всегда на первой линии
       const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-      const startBonus = (isNewbiePeriod && lines.length >= 1) ? 30 : 0; // Автоматически начисляется, если в новичковом периоде и есть хотя бы 1 линия
+
+      // Стартовый бонус начисляется только если в первой линии есть хотя бы 1 участник
+      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0; 
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
       // Функция для изменения количества участников в линиях
@@ -124,11 +125,6 @@
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={isNewbiePeriod} onChange={() => setIsNewbiePeriod(!isNewbiePeriod)} />
               Я в новичковом периоде
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={got3ClubInStart} onChange={() => setGot3ClubInStart(!got3ClubInStart)} />
-              В первом периоде было 3 Club members
             </label>
           </div>
 
