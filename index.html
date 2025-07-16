@@ -17,7 +17,7 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // 10 линий, начальное значение 1 в первой линии
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [rank, setRank] = useState(1); // Ранг
       
@@ -36,8 +36,7 @@
         return totalBonus;
       };
 
-      const structuralBonus = calculateBonus();
-      const totalEur = structuralBonus;
+      const totalEur = calculateBonus();
 
       // Функция для изменения количества участников в каждой линии
       const handleLineChange = (index, value) => {
@@ -113,12 +112,7 @@
           </div>
 
           <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-3 shadow-lg">
-            <p><strong className="text-blue-600">Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
-            <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
-            <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
-            <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
-            <hr />
-            <p><strong>💰 Общий доход:</strong> €{totalEur.toFixed(2)}</p>
+            <p><strong className="text-blue-600">Структурный бонус:</strong> €{totalEur.toFixed(2)}</p>
           </div>
         </div>
       );
@@ -128,4 +122,5 @@
   </script>
 
 </body>
+
 </html>
