@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +18,7 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1 человеком
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [rank, setRank] = useState(1); // Ранг
 
@@ -65,10 +66,10 @@
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
           <div className="flex justify-center items-center mb-6">
-            <img 
-              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75" 
-              alt="Logo" 
-              className="h-12 w-auto" 
+            <img
+              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75"
+              alt="Logo"
+              className="h-12 w-auto"
             />
           </div>
 
@@ -76,10 +77,10 @@
 
           <div className="space-y-4 mt-6">
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
-            <input 
+            <input
               type="text"
-              value={calculatedRank} 
-              readOnly 
+              value={calculatedRank}
+              readOnly
               className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
@@ -88,20 +89,20 @@
             {lines.map((line, index) => (
               <div key={index}>
                 <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
-                <input 
-                  type="text" 
-                  value={line} 
-                  onChange={e => handleLineChange(index, +e.target.value)} 
+                <input
+                  type="number"
+                  value={line}
+                  onChange={(e) => handleLineChange(index, +e.target.value)}
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                 />
               </div>
             ))}
 
             <label>Сколько PV на одного человека:</label>
-            <input 
-              type="number" 
-              value={pvPerUser} 
-              onChange={e => setPvPerUser(+e.target.value)} 
+            <input
+              type="number"
+              value={pvPerUser}
+              onChange={(e) => setPvPerUser(+e.target.value)}
               className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
             />
 
