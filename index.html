@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
-  
+
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -24,14 +24,13 @@
       const [lines, setLines] = useState([0, 0, 0]);  // Линии
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
-      const [desiredIncome, setDesiredIncome] = useState(0);
 
       // Проценты для каждой линии
       const linePercents = [
         0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 
       ];
 
-      // Вычисление бонуса
+      // Вычисление бонуса для каждой линии
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
       // Рассчитываем бонусы
@@ -49,7 +48,7 @@
       const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
-      // Функция для изменения количества участников
+      // Функция для изменения количества участников в каждой линии
       const handleLineChange = (index, value) => {
         const updatedLines = [...lines];
         updatedLines[index] = value;
@@ -61,42 +60,12 @@
         return value.replace(/^0+/, '') || '0'; 
       };
 
-      // Функция для расчета минимальных участников для достижения дохода
-      const setIncome = (income) => {
-        setDesiredIncome(income);
-        let updatedLines = [...lines];
-        let remainingIncome = income;
-
-        // Рассчитываем минимальное количество людей
-        for (let i = 0; i < updatedLines.length; i++) {
-          if (remainingIncome <= 0) break;
-          let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); 
-          updatedLines[i] = minUsers;
-          remainingIncome -= getLineBonus(minUsers, linePercents[i]);
-        }
-        setLines(updatedLines);
-
-        // Обновляем ранг
-        const newRank = Math.min(updatedLines.length, 10); 
-        setRank(newRank);
-      };
-
       // Обработчик для кнопок с доходом
       const handleQuickIncome = (income) => {
-        setIncome(income);
-        const minUsers = calculateMinUsers(income);
-        setLines(minUsers);
-      };
-
-      // Включаем поля для каждой линии
-      useEffect(() => {
-        const maxLines = rank;
-        const updatedLines = [...lines];
-        if (updatedLines.length > maxLines) {
-          updatedLines.splice(maxLines); 
-        }
+        const updatedLines = calculateMinUsers(income);
         setLines(updatedLines);
-      }, [rank]);
+        setRank(updatedLines.length);
+      };
 
       // Рассчитываем минимальное количество пользователей для нужного дохода
       const calculateMinUsers = (income) => {
@@ -111,7 +80,17 @@
         return usersForIncome;
       };
 
-      // Обновляем ранг на основе линий
+      // Включаем поля для каждой линии
+      useEffect(() => {
+        const maxLines = rank;
+        const updatedLines = [...lines];
+        if (updatedLines.length > maxLines) {
+          updatedLines.splice(maxLines); 
+        }
+        setLines(updatedLines);
+      }, [rank]);
+
+      // Рассчитываем ранг на основе количества людей в линиях
       const calculateRank = () => {
         let maxRank = 0;
         for (let i = 0; i < lines.length; i++) {
