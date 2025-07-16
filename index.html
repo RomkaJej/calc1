@@ -20,8 +20,7 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [rank, setRank] = useState(1); // Ранг
-      const [lines, setLines] = useState([0, 0, 0]);  // Линии (массив для 1, 2 и 3 линии)
+      const [lines, setLines] = useState([0, 0, 0]);  // Линии
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [desiredIncome, setDesiredIncome] = useState(0);
@@ -65,7 +64,6 @@
       const handleQuickIncome = (income) => {
         const updatedLines = calculateMinUsers(income);
         setLines(updatedLines);
-        setRank(updatedLines.length);
       };
 
       // Рассчитываем минимальное количество пользователей для нужного дохода
@@ -81,7 +79,7 @@
         return usersForIncome;
       };
 
-      // Обновляем ранг на основе линий
+      // Рассчитываем ранг на основе линий
       const calculateRank = () => {
         let maxRank = 0;
         for (let i = 0; i < lines.length; i++) {
@@ -101,7 +99,7 @@
           updatedLines.splice(maxLines); 
         }
         setLines(updatedLines);
-      }, [calculatedRank]);
+      }, [lines]);
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
