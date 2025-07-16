@@ -22,6 +22,7 @@
       color: #000;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      position: relative;
     }
     h1 {
       text-align: center;
@@ -70,16 +71,23 @@
       font-size: 18px;
       font-weight: 500;
     }
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 150px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <img src="https://bfc24.com/assets/img/logo.png" alt="Best Friends Club" class="logo">
     <h1>MLM калькулятор дохода</h1>
 
-    <label for="rank">Текущий ранг (1-10):</label>
-    <input id="rank" type="range" min="1" max="10" value="1" step="1">
+    <label for="members-1">Кол-во Club members в 1-й линии:</label>
+    <input id="members-1" type="number" placeholder="Введите кол-во" min="0" oninput="updateLines()">
 
-    <div id="inputFields"></div>
+    <div id="lines"></div>
 
     <label for="pv">Сколько PV на одного человека:</label>
     <input type="number" id="pv" placeholder="Введите количество PV" min="0">
@@ -97,53 +105,47 @@
   </div>
 
   <script>
-    const rankInput = document.getElementById('rank');
-    const inputFields = document.getElementById('inputFields');
-    const pvInput = document.getElementById('pv');
-    const resultsContainer = document.getElementById('results');
-    const newbiePeriodCheckbox = document.getElementById('newbiePeriod');
+    const membersInput = document.getElementById("members-1");
+    const pvInput = document.getElementById("pv");
+    const resultsContainer = document.getElementById("results");
+    const newbiePeriodCheckbox = document.getElementById("newbiePeriod");
+    const linesContainer = document.getElementById("lines");
 
-    function updateFields() {
-      const rank = parseInt(rankInput.value);
-      inputFields.innerHTML = '';
+    let members = [];
 
-      for (let i = 1; i <= rank; i++) {
-        const lineInput = document.createElement('input');
-        lineInput.type = 'number';
-        lineInput.placeholder = `Кол-во Club members в ${i} линии`;
-        lineInput.id = `line-${i}`;
-        lineInput.classList.add('line-input');
-        inputFields.appendChild(lineInput);
+    function updateLines() {
+      const membersInFirstLine = parseInt(membersInput.value);
+      members = [membersInFirstLine];
+      linesContainer.innerHTML = "";
+
+      // Add lines dynamically based on the first line input
+      for (let i = 2; i <= 10; i++) {
+        if (members[i - 2] > 0) {
+          const lineInput = document.createElement("input");
+          lineInput.type = "number";
+          lineInput.placeholder = `Кол-во Club members в ${i} линии`;
+          lineInput.id = `members-${i}`;
+          lineInput.classList.add("line-input");
+          lineInput.addEventListener("input", updateLines);
+          linesContainer.appendChild(lineInput);
+          members.push(0);
+        }
       }
     }
 
-    rankInput.addEventListener('input', updateFields);
-    updateFields();
-
     function calculateIncome(targetIncome) {
-      const rank = parseInt(rankInput.value);
-      const pv = parseFloat(pvInput.value);
+      const totalPV = parseFloat(pvInput.value);
       const isNewbie = newbiePeriodCheckbox.checked;
 
-      const lines = [];
-      let totalPV = 0;
-      let totalPeople = 0;
+      const totalPeople = members.reduce((total, lineMembers) => total + lineMembers, 0);
+      const totalEur = totalPV * totalPeople;
 
-      for (let i = 1; i <= rank; i++) {
-        const lineInput = document.getElementById(`line-${i}`);
-        const lineMembers = lineInput ? parseInt(lineInput.value) : 0;
-        totalPeople += lineMembers;
-        totalPV += lineMembers * pv;
-
-        lines.push(lineMembers);
-      }
-
-      const totalEur = calculateBonus(totalPV);
       const gvBonus = totalEur * 0.1;
       const newbieBonus = totalEur * 0.05;
       const startBonus = totalEur * 0.02;
 
       resultsContainer.innerHTML = `
+        <p><strong>Цель: €${targetIncome}</strong></p>
         <p>Структурный бонус: €${totalEur.toFixed(2)}</p>
         <p>Подарочный бонус (GV): ${gvBonus.toFixed(2)} GV</p>
         <p>Бонус новичка: €${newbieBonus.toFixed(2)}</p>
@@ -152,9 +154,8 @@
       `;
     }
 
-    function calculateBonus(totalPV) {
-      return totalPV / 100;
-    }
+    // Initialize lines and default values
+    updateLines();
   </script>
 </body>
 </html>
