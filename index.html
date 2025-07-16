@@ -1,96 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MLM Calculator</title>
-  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/babel-standalone@7.0.0/babel.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLM-калькулятор дохода</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+
+<body class="bg-green-600">
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false);
-      const [lines, setLines] = useState(Array(10).fill(0));
+      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
+      const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
+      const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
+      const [rank, setRank] = useState(1);  // Ранг
 
-      const calculateTotalBonus = () => {
+      // Проценты для каждой линии
+      const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
+
+      // Рассчитываем бонусы для каждой линии
+      const getLineBonus = (users, percent) => users * pvPerUser * percent;
+
+      // Рассчитываем общий бонус
+      const calculateBonus = () => {
         let totalBonus = 0;
-        lines.forEach((members, index) => {
-          const levelBonus = members * 90; // Replace with your calculation logic
-          totalBonus += levelBonus;
-        });
+        for (let i = 0; i < lines.length; i++) {
+          totalBonus += getLineBonus(lines[i], linePercents[i]);
+        }
         return totalBonus;
       };
 
-      const handleLineChange = (index, value) => {
-        const updatedLines = [...lines];
-        updatedLines[index] = value;
-        setLines(updatedLines);
+      const totalEur = calculateBonus();
+
+      // Бонусы
+      const gvBonus = totalEur * 0.1;
+      const newbieBonus = totalEur * 0.05;
+      const startBonus = totalEur * 0.02;
+
+      // Обработчик для кнопок с доходом
+      const handleQuickIncome = (income) => {
+        setIncomeTarget(income); // Устанавливаем цель дохода
+        const updatedLines = getFixedUserCount(income); // Получаем зафиксированные данные для линий
+        setLines(updatedLines); // Обновляем линии
       };
 
-      const totalBonus = calculateTotalBonus();
-      const gvBonus = totalBonus * 0.1;
-      const newbieBonus = totalBonus * 0.05;
-      const startBonus = totalBonus * 0.02;
+      // Логика для заполнения линий с оптимизированным числом людей
+      const getFixedUserCount = (income) => {
+        let users = [];
+        if (income === 500) {
+          // Определим фиксированные значения для 500€
+          users = [3, 9, 20, 35, 50, 60, 70, 80, 90, 100]; // Примерный расчет
+        } else if (income === 1000) {
+          // Определим фиксированные значения для 1000€
+          users = [5, 15, 30, 50, 70, 85, 100, 120, 140, 160]; // Примерный расчет
+        } else if (income === 1500) {
+          // Определим фиксированные значения для 1500€
+          users = [8, 24, 45, 70, 95, 120, 145, 170, 200, 230]; // Примерный расчет
+        }
+        return users;
+      };
+
+      // Рассчитываем ранг на основе линий
+      const calculateRank = () => {
+        let maxRank = 0;
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i] > 0) {
+            maxRank = i + 1;
+          }
+        }
+        return maxRank;
+      };
+
+      const calculatedRank = calculateRank();
+
+      useEffect(() => {
+        setRank(calculatedRank);
+      }, [lines]);
 
       return (
-        <div style={{ backgroundColor: '#00C853', padding: '20px', borderRadius: '10px', color: 'white' }}>
-          <h1>MLM калькулятор дохода</h1>
-
-          <div>
-            <label>Текущий ранг (1-10):</label>
-            <input 
-              type="range" 
-              min="1" 
-              max="10" 
-              value={lines.filter(line => line > 0).length}
-              onChange={(e) => {
-                const value = e.target.value;
-                const updatedLines = Array(10).fill(0);
-                updatedLines[value - 1] = 1;
-                setLines(updatedLines);
-              }} 
+        <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
+          <div className="flex justify-center items-center mb-6">
+            <img 
+              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75" 
+              alt="Logo" 
+              className="h-12 w-auto" 
             />
-            <p>Ранг: {lines.filter(line => line > 0).length}</p>
           </div>
 
-          <div>
+          <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
+
+          {/* Кнопки для быстрого расчета дохода */}
+          <div className="flex justify-between gap-4 mb-6">
+            <button 
+              onClick={() => handleQuickIncome(500)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €500
+            </button>
+            <button 
+              onClick={() => handleQuickIncome(1000)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €1000
+            </button>
+            <button 
+              onClick={() => handleQuickIncome(1500)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €1500
+            </button>
+          </div>
+
+          <div className="space-y-4 mt-6">
+            <label className="block text-gray-600">Текущий ранг (1-10):</label>
+            <input 
+              type="text"
+              value={calculatedRank} 
+              readOnly 
+              className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
+            />
+            <p className="text-center">Ранг: {calculatedRank}</p>
+
+            {/* Количество участников для каждой линии */}
             {lines.map((line, index) => (
               <div key={index}>
-                <label>Кол-во Club members в {index + 1}-й линии:</label>
-                <input 
-                  type="number" 
-                  value={line} 
-                  onChange={(e) => handleLineChange(index, parseInt(e.target.value, 10))} 
-                  min="0" 
-                />
+                {index === 0 || lines[index - 1] > 0 ? (
+                  <>
+                    <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
+                    <input 
+                      type="text" 
+                      value={line} 
+                      onChange={e => handleLineChange(index, +e.target.value)} 
+                      className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                    />
+                  </>
+                ) : null}
               </div>
             ))}
-          </div>
 
-          <div>
             <label>Сколько PV на одного человека:</label>
-            <input type="number" value={90} disabled />
-          </div>
+            <input 
+              type="number" 
+              value={pvPerUser} 
+              onChange={e => setPvPerUser(+e.target.value)} 
+              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+            />
 
-          <div>
-            <label>
+            <label className="flex items-center gap-2">
               <input type="checkbox" checked={isNewbiePeriod} onChange={() => setIsNewbiePeriod(!isNewbiePeriod)} />
               Я в новичковом периоде
             </label>
           </div>
 
-          <div>
-            <p><strong>Структурный бонус:</strong> €{totalBonus.toFixed(2)}</p>
+          <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-3 shadow-lg">
+            <p><strong className="text-blue-600">Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
             <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
             <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
             <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
-            <p><strong>Общий доход:</strong> €{(totalBonus + newbieBonus + startBonus).toFixed(2)}</p>
+            <hr />
+            <p><strong>💰 Общий доход:</strong> €{totalEur.toFixed(2)}</p>
           </div>
         </div>
       );
@@ -98,5 +173,7 @@
 
     ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
   </script>
+
 </body>
+
 </html>
