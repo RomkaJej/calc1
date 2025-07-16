@@ -5,9 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
+
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -18,9 +20,9 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0));  // 10 линий
-      const [pvPerUser, setPvPerUser] = useState(90);  // PV за одного человека
-      const [rank, setRank] = useState(1);  // Ранг
+      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
+      const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
+      const [rank, setRank] = useState(1); // Ранг
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
 
@@ -68,7 +70,7 @@
       const calculateMinUsers = (income) => {
         let totalIncome = 0;
         let usersForIncome = [];
-        let lineUsers = [1];  // Начинаем с 1-го человека в первой линии
+        let lineUsers = [1]; // Начинаем с 1-го человека в первой линии
 
         // Заполняем все линии, начиная с первой
         for (let i = 0; i < linePercents.length; i++) {
@@ -295,7 +297,6 @@
 
     ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
-
 </body>
 
 </html>
