@@ -5,53 +5,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
-
-  <!-- Подключение React, ReactDOM и Babel -->
+  
+  <!-- Подключаем библиотеки React и ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Подключение TailwindCSS для стилизации -->
+  <!-- Подключаем TailwindCSS для стилизации -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-green-600">
+  <!-- Контейнер для React приложения -->
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    // Главная компонента калькулятора
     function MLMCalculator() {
-      // Изначальные данные
-      const [rank, setRank] = useState(1); // Ранг пользователя
-      const [lines, setLines] = useState([0]);  // Начальные данные для 3 линий
+      const [rank, setRank] = useState(1);
+      const [lines, setLines] = useState([0]);
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
-      const [desiredIncome, setDesiredIncome] = useState(0); // Для отслеживания желаемого дохода
+      const [desiredIncome, setDesiredIncome] = useState(0);
 
       const linePercents = [
-        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 // Проценты для каждой линии
+        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005
       ];
 
       // Функция для вычисления бонуса по линии
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
-      // Функция для расчета бонусов на основе доступных линий
+      // Рассчитываем бонусы
       const calculateBonus = () => {
         let totalBonus = 0;
         for (let i = 0; i < lines.length; i++) {
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      }
+      };
 
-      // Рассчитываем бонусы
       const structuralBonus = calculateBonus();
-      const gvBonus = getLineBonus(lines[0], 0.1); // gv всегда на первой линии
+      const gvBonus = getLineBonus(lines[0], 0.1);
       const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-
-      // Стартовый бонус начисляется только если в первой линии есть хотя бы 1 участник
-      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0; 
+      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
       // Функция для изменения количества участников в линиях
@@ -61,12 +59,10 @@
         setLines(updatedLines);
       };
 
-      // Функция для удаления ведущих нулей
       const removeLeadingZero = (value) => {
-        return value.replace(/^0+/, '') || '0'; // Убирает нули и ставит 0, если пусто
+        return value.replace(/^0+/, '') || '0'; // Убираем ведущие нули
       };
 
-      // Функция для расчета минимального количества участников, чтобы достичь нужного дохода
       const setIncome = (income) => {
         setDesiredIncome(income);
         let updatedLines = [...lines];
@@ -80,18 +76,15 @@
           remainingIncome -= getLineBonus(minUsers, linePercents[i]);
         }
         setLines(updatedLines);
-
-        // Автоматическое изменение ранга, если требуется
-        const newRank = Math.min(updatedLines.length, 10); // Устанавливаем ранг так, чтобы он соответствовал количеству линий
+        const newRank = Math.min(updatedLines.length, 10); 
         setRank(newRank);
       };
 
-      // Рассчитываем минимально необходимое количество людей для достижения заданной суммы
       const calculateMinUsers = (income) => {
         let totalIncome = 0;
         let usersForIncome = [];
         for (let i = 0; i < linePercents.length; i++) {
-          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); // Округляем вверх
+          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i]));
           usersForIncome[i] = minUsers;
           totalIncome += getLineBonus(minUsers, linePercents[i]);
           if (totalIncome >= income) break;
@@ -99,19 +92,19 @@
         return usersForIncome;
       };
 
-      // Обработчик для кнопок
+      // Обработчик для кнопок с доходом
       const handleQuickIncome = (income) => {
         setIncome(income);
         const minUsers = calculateMinUsers(income);
         setLines(minUsers);
       };
 
+      // Эффект для обновления количества линий в зависимости от ранга
       useEffect(() => {
-        // Обрезаем количество линий в зависимости от ранга
         const maxLines = rank;
         const updatedLines = [...lines];
         if (updatedLines.length > maxLines) {
-          updatedLines.splice(maxLines); // Убираем лишние линии
+          updatedLines.splice(maxLines); 
         }
         setLines(updatedLines);
       }, [rank]);
@@ -127,7 +120,7 @@
         return maxRank;
       };
 
-      const rank = calculateRank(); // Автоматическое вычисление ранга
+      const calculatedRank = calculateRank(); // Автоматическое вычисление ранга
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -141,7 +134,6 @@
           
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
-          {/* Кнопки для быстрого расчета дохода */}
           <div className="flex justify-between gap-4 mb-6">
             <button 
               onClick={() => handleQuickIncome(500)} 
@@ -167,23 +159,20 @@
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
             <input 
               type="text"
-              value={rank} 
+              value={calculatedRank} 
               readOnly 
               className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
             />
-            <p className="text-center">Ранг: {rank}</p>
+            <p className="text-center">Ранг: {calculatedRank}</p>
 
-            {/* Поля для ввода количества участников в линиях */}
-            {[...Array(rank)].map((_, index) => (
+            {[...Array(calculatedRank)].map((_, index) => (
               <div key={index}>
                 <label>Кол-во Club members в {index + 1}-й линии:</label>
                 <input 
                   type="text" 
-                  value={removeLeadingZero(lines[index].toString())} // Убираем ведущие нули
+                  value={removeLeadingZero(lines[index].toString())} 
                   onChange={e => handleLineChange(index, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                  min="1"
-                  max="100"
                 />
               </div>
             ))}
@@ -194,8 +183,6 @@
               value={pvPerUser} 
               onChange={e => setPvPerUser(+e.target.value)} 
               className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-              min="1"
-              max="1000"
             />
 
             <label className="flex items-center gap-2">
