@@ -67,10 +67,18 @@
       const calculateMinUsers = (income) => {
         let totalIncome = 0;
         let usersForIncome = [];
+        let lineUsers = [1];  // Начинаем с 1-го человека в первой линии
+
+        // Заполняем все линии, начиная с первой
         for (let i = 0; i < linePercents.length; i++) {
           let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); 
           usersForIncome[i] = minUsers;
-          totalIncome += getLineBonus(minUsers, linePercents[i]);
+
+          // Формируем схему, где каждый участник из предыдущей линии приводит 3 человека
+          let nextLineUsers = lineUsers[i] * 3;
+          lineUsers.push(nextLineUsers);
+
+          totalIncome += getLineBonus(nextLineUsers, linePercents[i]);
           if (totalIncome >= income) break;
         }
         return usersForIncome;
