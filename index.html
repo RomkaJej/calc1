@@ -22,9 +22,9 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      // Изначальные данные
-      const [rank, setRank] = useState(1);
-      const [lines, setLines] = useState([3, 3, 3]); // Начальные данные для 3 линий
+      // Данные из ТЗ
+      const [rank, setRank] = useState(1); // Ранг пользователя
+      const [lines, setLines] = useState([3, 3, 3]);  // Число участников в линиях
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [got3ClubInStart, setGot3ClubInStart] = useState(true);
