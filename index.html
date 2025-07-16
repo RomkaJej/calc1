@@ -22,29 +22,49 @@
     const { useState } = React;
 
     function MLMCalculator() {
-      const [rank, setRank] = useState(2);
-      const [firstLine, setFirstLine] = useState(3);
-      const [secondLine, setSecondLine] = useState(3);
-      const [thirdLine, setThirdLine] = useState(3);
-      const [pvPerUser, setPvPerUser] = useState(90);
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
-      const [got3ClubInStart, setGot3ClubInStart] = useState(true);
+      // Данные из ТЗ
+      const [rank, setRank] = useState(1); // Ранг пользователя
+      const [firstLine, setFirstLine] = useState(3);  // Число участников в первой линии
+      const [secondLine, setSecondLine] = useState(3); // Число участников во второй линии
+      const [thirdLine, setThirdLine] = useState(3);  // Число участников в третьей линии
+      const [pvPerUser, setPvPerUser] = useState(90); // Количество PV на пользователя
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Бонус новичка
+      const [got3ClubInStart, setGot3ClubInStart] = useState(true); // Стартовый бонус за 3 Club
+      const [bonusPercentage, setBonusPercentage] = useState(0.1);  // Процент бонуса по линиям
 
+      // Проценты бонусов по линиям (можно добавить больше линий, если нужно)
       const linePercents = [
         0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005
       ];
 
+      // Функция для расчета бонуса по каждой линии
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
-      const structuralBonus =
-        getLineBonus(firstLine, linePercents[0]) +
-        (rank >= 2 ? getLineBonus(secondLine, linePercents[1]) : 0) +
-        (rank >= 3 ? getLineBonus(thirdLine, linePercents[2]) : 0);
+      // Рассчитываем бонус по всем линиям
+      const calculateBonus = () => {
+        let totalBonus = 0;
+        // Для каждой линии добавляем бонус, если ранг пользователя больше или равен номеру линии
+        for (let i = 0; i < Math.min(linePercents.length, 3); i++) {
+          if (rank >= i + 1) {
+            totalBonus += getLineBonus([firstLine, secondLine, thirdLine][i], linePercents[i]);
+          }
+        }
+        return totalBonus;
+      }
 
-      const gvBonus = getLineBonus(firstLine, 0.1);
-      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-      const startBonus = got3ClubInStart ? 30 : 0;
-      const totalEur = structuralBonus + newbieBonus + startBonus;
+      const structuralBonus = calculateBonus();
+      const gvBonus = getLineBonus(firstLine, 0.1); // предположим, что на первой линии всегда есть gv
+      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0; // бонус новичка
+      const startBonus = got3ClubInStart ? 30 : 0; // стартовый бонус
+      const totalEur = structuralBonus + newbieBonus + startBonus; // Итоговый доход
+
+      const handleLineChange = (index, value) => {
+        const updatedLines = [firstLine, secondLine, thirdLine];
+        updatedLines[index] = value;
+        setFirstLine(updatedLines[0]);
+        setSecondLine(updatedLines[1]);
+        setThirdLine(updatedLines[2]);
+      };
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -70,35 +90,20 @@
             />
             <p className="text-center">{rank}</p>
 
-            <label>Кол-во Club members в 1-й линии:</label>
-            <input 
-              type="number" 
-              value={firstLine} 
-              onChange={e => setFirstLine(+e.target.value)} 
-              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-              min="1"
-              max="100"
-            />
-
-            <label>Кол-во Club members во 2-й линии:</label>
-            <input 
-              type="number" 
-              value={secondLine} 
-              onChange={e => setSecondLine(+e.target.value)} 
-              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-              min="1"
-              max="100"
-            />
-
-            <label>Кол-во Club members в 3-й линии:</label>
-            <input 
-              type="number" 
-              value={thirdLine} 
-              onChange={e => setThirdLine(+e.target.value)} 
-              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-              min="1"
-              max="100"
-            />
+            {/* Поля для ввода количества участников в линиях */}
+            {[firstLine, secondLine, thirdLine].map((line, index) => (
+              <div key={index}>
+                <label>Кол-во Club members в {index + 1}-й линии:</label>
+                <input 
+                  type="number" 
+                  value={line} 
+                  onChange={e => handleLineChange(index, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                  min="1"
+                  max="100"
+                />
+              </div>
+            ))}
 
             <label>Сколько PV на одного человека:</label>
             <input 
