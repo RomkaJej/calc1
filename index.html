@@ -84,15 +84,16 @@
         setDesiredIncome(income);
         let updatedLines = [...lines];
         let totalIncome = 0;
+        let remainingIncome = income;
 
-        // Примерная логика для распределения нужного дохода
+        // Рассчитываем минимальное количество людей для каждой линии
         for (let i = 0; i < updatedLines.length; i++) {
           if (rank >= i + 1) {
-            // Примерный расчет минимального количества участников для нужного дохода
-            let usersNeeded = Math.ceil(income / (pvPerUser * linePercents[i]));  // Округляем вверх
-            updatedLines[i] = usersNeeded;
-            totalIncome = calculateBonus();
-            if (totalIncome >= income) break; // Останавливаем, если достигли нужного дохода
+            // Вычисляем минимальное количество людей для линии
+            let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i]));
+            updatedLines[i] = minUsers;
+            remainingIncome -= getLineBonus(minUsers, linePercents[i]);
+            if (remainingIncome <= 0) break; // Если доход уже достигнут, не заполняем остальные линии
           }
         }
         setLines(updatedLines);
