@@ -10,6 +10,26 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  </style>
 </head>
 
 <body class="bg-green-600">
@@ -117,7 +137,9 @@
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
           <div className="space-y-4 mt-6">
-            <label className="block text-gray-600">Текущий ранг (1-10):</label>
+            <label className="block text-gray-600">Текущий ранг (1-10):
+              <span className="ml-2 text-gray-600" data-tooltip="Укажите ваш текущий ранг в системе MLM">❓</span>
+            </label>
             <input 
               type="text"
               value={calculatedRank} 
@@ -127,7 +149,9 @@
             <p className="text-center">Ранг: {calculatedRank}</p>
 
             {/* Количество участников для первой линии */}
-            <label>Кол-во Club members в 1-й линии:</label>
+            <label>Кол-во Club members в 1-й линии:
+              <span className="ml-2 text-gray-600" data-tooltip="Введите количество участников, которые вы хотите привлечь в первую линию">❓</span>
+            </label>
             <input 
               type="text" 
               value={removeLeadingZero(lines[0].toString())} 
@@ -135,10 +159,12 @@
               className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
             />
 
-            {/* Количество участников для второй линии, если в первой есть хотя бы 1 человек */}
+            {/* Количество участников для второй линии */}
             {lines[0] > 0 && (
               <div>
-                <label>Кол-во Club members в 2-й линии:</label>
+                <label>Кол-во Club members в 2-й линии:
+                  <span className="ml-2 text-gray-600" data-tooltip="Если в первой линии есть участники, добавьте количество для второй линии">❓</span>
+                </label>
                 <input 
                   type="text" 
                   value={removeLeadingZero(lines[1].toString())} 
@@ -148,10 +174,12 @@
               </div>
             )}
 
-            {/* Количество участников для третьей линии, если во второй есть хотя бы 1 человек */}
+            {/* Количество участников для третьей линии */}
             {lines[1] > 0 && (
               <div>
-                <label>Кол-во Club members в 3-й линии:</label>
+                <label>Кол-во Club members в 3-й линии:
+                  <span className="ml-2 text-gray-600" data-tooltip="Введите количество участников для третьей линии, если они есть">❓</span>
+                </label>
                 <input 
                   type="text" 
                   value={removeLeadingZero(lines[2].toString())} 
@@ -161,10 +189,12 @@
               </div>
             )}
 
-            {/* Добавление остальных линий */}
+            {/* Для остальных линий аналогично */}
             {lines[2] > 0 && (
               <div>
-                <label>Кол-во Club members в 4-й линии:</label>
+                <label>Кол-во Club members в 4-й линии:
+                  <span className="ml-2 text-gray-600" data-tooltip="Заполните количество участников в 4-й линии, если они есть">❓</span>
+                </label>
                 <input 
                   type="text" 
                   value={removeLeadingZero(lines[3].toString())} 
@@ -174,9 +204,12 @@
               </div>
             )}
 
+            {/* Прочие линии */}
             {lines[3] > 0 && (
               <div>
-                <label>Кол-во Club members в 5-й линии:</label>
+                <label>Кол-во Club members в 5-й линии:
+                  <span className="ml-2 text-gray-600" data-tooltip="Введите количество участников для 5-й линии">❓</span>
+                </label>
                 <input 
                   type="text" 
                   value={removeLeadingZero(lines[4].toString())} 
@@ -186,67 +219,10 @@
               </div>
             )}
 
-            {lines[4] > 0 && (
-              <div>
-                <label>Кол-во Club members в 6-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[5].toString())} 
-                  onChange={e => handleLineChange(5, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[5] > 0 && (
-              <div>
-                <label>Кол-во Club members в 7-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[6].toString())} 
-                  onChange={e => handleLineChange(6, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[6] > 0 && (
-              <div>
-                <label>Кол-во Club members в 8-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[7].toString())} 
-                  onChange={e => handleLineChange(7, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[7] > 0 && (
-              <div>
-                <label>Кол-во Club members в 9-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[8].toString())} 
-                  onChange={e => handleLineChange(8, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[8] > 0 && (
-              <div>
-                <label>Кол-во Club members в 10-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[9].toString())} 
-                  onChange={e => handleLineChange(9, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            <label>Сколько PV на одного человека:</label>
+            {/* Остальные поля */}
+            <label>Сколько PV на одного человека:
+              <span className="ml-2 text-gray-600" data-tooltip="PV — это количество очков, которые получает каждый участник для расчёта дохода">❓</span>
+            </label>
             <input 
               type="number" 
               value={pvPerUser} 
@@ -275,5 +251,4 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 </body>
-
 </html>
