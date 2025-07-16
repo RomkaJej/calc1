@@ -6,35 +6,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
   
-  <!-- Подключаем библиотеки React и ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Подключаем TailwindCSS для стилизации -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-green-600">
-  <!-- Контейнер для React приложения -->
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Главная компонента калькулятора
     function MLMCalculator() {
-      const [rank, setRank] = useState(1);
-      const [lines, setLines] = useState([0]);
+      // Начальные состояния
+      const [rank, setRank] = useState(1); // Ранг
+      const [lines, setLines] = useState([0]); // Линии
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [desiredIncome, setDesiredIncome] = useState(0);
 
+      // Проценты для каждой линии
       const linePercents = [
-        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005
+        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 
       ];
 
-      // Функция для вычисления бонуса по линии
+      // Вычисление бонуса
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
       // Рассчитываем бонусы
@@ -44,52 +42,44 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      };
+      }
 
       const structuralBonus = calculateBonus();
-      const gvBonus = getLineBonus(lines[0], 0.1);
+      const gvBonus = getLineBonus(lines[0], 0.1); 
       const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
       const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
-      // Функция для изменения количества участников в линиях
+      // Функция для изменения количества участников
       const handleLineChange = (index, value) => {
         const updatedLines = [...lines];
         updatedLines[index] = value;
         setLines(updatedLines);
       };
 
+      // Убираем ведущие нули
       const removeLeadingZero = (value) => {
-        return value.replace(/^0+/, '') || '0'; // Убираем ведущие нули
+        return value.replace(/^0+/, '') || '0';
       };
 
+      // Функция для расчета минимальных участников для достижения дохода
       const setIncome = (income) => {
         setDesiredIncome(income);
         let updatedLines = [...lines];
         let remainingIncome = income;
 
-        // Рассчитываем минимальное количество людей для каждой линии
+        // Рассчитываем минимальное количество людей
         for (let i = 0; i < updatedLines.length; i++) {
           if (remainingIncome <= 0) break;
-          let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); // Округляем вверх
+          let minUsers = Math.ceil(remainingIncome / (pvPerUser * linePercents[i])); 
           updatedLines[i] = minUsers;
           remainingIncome -= getLineBonus(minUsers, linePercents[i]);
         }
         setLines(updatedLines);
+
+        // Обновляем ранг
         const newRank = Math.min(updatedLines.length, 10); 
         setRank(newRank);
-      };
-
-      const calculateMinUsers = (income) => {
-        let totalIncome = 0;
-        let usersForIncome = [];
-        for (let i = 0; i < linePercents.length; i++) {
-          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i]));
-          usersForIncome[i] = minUsers;
-          totalIncome += getLineBonus(minUsers, linePercents[i]);
-          if (totalIncome >= income) break;
-        }
-        return usersForIncome;
       };
 
       // Обработчик для кнопок с доходом
@@ -99,7 +89,7 @@
         setLines(minUsers);
       };
 
-      // Эффект для обновления количества линий в зависимости от ранга
+      // Включаем поля для каждой линии
       useEffect(() => {
         const maxLines = rank;
         const updatedLines = [...lines];
@@ -109,7 +99,20 @@
         setLines(updatedLines);
       }, [rank]);
 
-      // Функция для вычисления ранга на основе количества людей
+      // Рассчитываем минимальное количество пользователей для нужного дохода
+      const calculateMinUsers = (income) => {
+        let totalIncome = 0;
+        let usersForIncome = [];
+        for (let i = 0; i < linePercents.length; i++) {
+          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); 
+          usersForIncome[i] = minUsers;
+          totalIncome += getLineBonus(minUsers, linePercents[i]);
+          if (totalIncome >= income) break;
+        }
+        return usersForIncome;
+      };
+
+      // Автоматический расчет ранга
       const calculateRank = () => {
         let maxRank = 0;
         for (let i = 0; i < lines.length; i++) {
@@ -120,7 +123,7 @@
         return maxRank;
       };
 
-      const calculatedRank = calculateRank(); // Автоматическое вычисление ранга
+      const calculatedRank = calculateRank(); 
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -131,9 +134,10 @@
               className="h-12 w-auto" 
             />
           </div>
-          
+
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
+          {/* Кнопки для быстрого расчета дохода */}
           <div className="flex justify-between gap-4 mb-6">
             <button 
               onClick={() => handleQuickIncome(500)} 
@@ -165,6 +169,7 @@
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
 
+            {/* Поля для ввода количества участников в линиях */}
             {[...Array(calculatedRank)].map((_, index) => (
               <div key={index}>
                 <label>Кол-во Club members в {index + 1}-й линии:</label>
