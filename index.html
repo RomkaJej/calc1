@@ -1,120 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <title>MLM калькулятор дохода</title>
-    <style>
-      body {
-        font-family: 'Arial', sans-serif;
-        background-color: #3c9f60;
-        color: white;
-        text-align: center;
-        padding-top: 50px;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLM Calculator</title>
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@7.0.0/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
 
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-      }
+  <script type="text/babel">
+    const { useState } = React;
 
-      .input-field {
-        margin-bottom: 20px;
-      }
+    function MLMCalculator() {
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false);
+      const [lines, setLines] = useState(Array(10).fill(0));
 
-      input[type="number"] {
-        padding: 10px;
-        font-size: 16px;
-        width: 100%;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-      }
+      const calculateTotalBonus = () => {
+        let totalBonus = 0;
+        lines.forEach((members, index) => {
+          const levelBonus = members * 90; // Replace with your calculation logic
+          totalBonus += levelBonus;
+        });
+        return totalBonus;
+      };
 
-      .result {
-        margin-top: 20px;
-      }
+      const handleLineChange = (index, value) => {
+        const updatedLines = [...lines];
+        updatedLines[index] = value;
+        setLines(updatedLines);
+      };
 
-      button {
-        background-color: #4caf50;
-        color: white;
-        padding: 10px 20px;
-        font-size: 18px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        width: 100%;
-      }
+      const totalBonus = calculateTotalBonus();
+      const gvBonus = totalBonus * 0.1;
+      const newbieBonus = totalBonus * 0.05;
+      const startBonus = totalBonus * 0.02;
 
-      button:active {
-        background-color: #45a049;
-      }
+      return (
+        <div style={{ backgroundColor: '#00C853', padding: '20px', borderRadius: '10px', color: 'white' }}>
+          <h1>MLM калькулятор дохода</h1>
 
-      #bonus-section {
-        margin-top: 30px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>MLM калькулятор дохода</h1>
-      <label for="line1">Количество Club members в 1-й линии:</label>
-      <input type="number" id="line1" class="input-field" placeholder="Введите количество участников в 1-й линии" />
-      <label for="pv">Сколько PV на одного человека:</label>
-      <input type="number" id="pv" class="input-field" placeholder="Введите PV" />
-      <br />
-      <label>
-        <input type="checkbox" id="isNewbiePeriod" /> Я в новичковом периоде
-      </label>
+          <div>
+            <label>Текущий ранг (1-10):</label>
+            <input 
+              type="range" 
+              min="1" 
+              max="10" 
+              value={lines.filter(line => line > 0).length}
+              onChange={(e) => {
+                const value = e.target.value;
+                const updatedLines = Array(10).fill(0);
+                updatedLines[value - 1] = 1;
+                setLines(updatedLines);
+              }} 
+            />
+            <p>Ранг: {lines.filter(line => line > 0).length}</p>
+          </div>
 
-      <div class="buttons">
-        <button onclick="calculateIncome(500)">500 EUR</button>
-        <button onclick="calculateIncome(1000)">1000 EUR</button>
-        <button onclick="calculateIncome(1500)">1500 EUR</button>
-      </div>
+          <div>
+            {lines.map((line, index) => (
+              <div key={index}>
+                <label>Кол-во Club members в {index + 1}-й линии:</label>
+                <input 
+                  type="number" 
+                  value={line} 
+                  onChange={(e) => handleLineChange(index, parseInt(e.target.value, 10))} 
+                  min="0" 
+                />
+              </div>
+            ))}
+          </div>
 
-      <div id="bonus-section">
-        <h3>Структурный бонус: <span id="structural-bonus">€0.00</span></h3>
-        <h3>Подарочный бонус (GV): <span id="gv-bonus">0.00 GV</span></h3>
-        <h3>Бонус новичка: <span id="newbie-bonus">€0.00</span></h3>
-        <h3>Стартовый бонус: <span id="start-bonus">€0.00</span></h3>
-        <h3>Общий доход: <span id="total-income">€0.00</span></h3>
-      </div>
-    </div>
+          <div>
+            <label>Сколько PV на одного человека:</label>
+            <input type="number" value={90} disabled />
+          </div>
 
-    <script>
-      function calculateIncome(targetIncome) {
-        const line1 = parseInt(document.getElementById('line1').value);
-        const pv = parseInt(document.getElementById('pv').value);
-        const isNewbiePeriod = document.getElementById('isNewbiePeriod').checked;
+          <div>
+            <label>
+              <input type="checkbox" checked={isNewbiePeriod} onChange={() => setIsNewbiePeriod(!isNewbiePeriod)} />
+              Я в новичковом периоде
+            </label>
+          </div>
 
-        if (!line1 || !pv) {
-          alert('Пожалуйста, заполните все поля!');
-          return;
-        }
+          <div>
+            <p><strong>Структурный бонус:</strong> €{totalBonus.toFixed(2)}</p>
+            <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
+            <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
+            <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
+            <p><strong>Общий доход:</strong> €{(totalBonus + newbieBonus + startBonus).toFixed(2)}</p>
+          </div>
+        </div>
+      );
+    }
 
-        // Основная логика расчета
-        const totalPV = line1 * pv;
-        const totalBonus = totalPV * 0.1; // Сумма бонуса в зависимости от PV
-        const gvBonus = totalBonus * 0.1; // Пример расчета бонуса на основе общей суммы
-        const newbieBonus = totalBonus * 0.05; // Бонус новичка
-        const startBonus = totalBonus * 0.02; // Стартовый бонус
-
-        // Применение новичкового периода, если активен
-        const totalEur = totalBonus + (isNewbiePeriod ? 100 : 0); // Добавляем 100 EUR если новичок
-
-        // Отображаем результаты
-        document.getElementById('structural-bonus').textContent = `€${totalBonus.toFixed(2)}`;
-        document.getElementById('gv-bonus').textContent = `${gvBonus.toFixed(2)} GV`;
-        document.getElementById('newbie-bonus').textContent = `€${newbieBonus.toFixed(2)}`;
-        document.getElementById('start-bonus').textContent = `€${startBonus.toFixed(2)}`;
-        document.getElementById('total-income').textContent = `€${totalEur.toFixed(2)}`;
-      }
-    </script>
-  </body>
+    ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
+  </script>
+</body>
 </html>
