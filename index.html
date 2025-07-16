@@ -20,9 +20,8 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      // Начальные состояния
       const [rank, setRank] = useState(1); // Ранг
-      const [lines, setLines] = useState([0]); // Линии
+      const [lines, setLines] = useState([0]);  // Линии
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [desiredIncome, setDesiredIncome] = useState(0);
@@ -59,7 +58,7 @@
 
       // Убираем ведущие нули
       const removeLeadingZero = (value) => {
-        return value.replace(/^0+/, '') || '0';
+        return value.replace(/^0+/, '') || '0'; 
       };
 
       // Функция для расчета минимальных участников для достижения дохода
@@ -112,7 +111,19 @@
         return usersForIncome;
       };
 
-      // Автоматический расчет ранга
+      // Функция для отображения линий
+      const displayLines = () => {
+        let linesToDisplay = [lines[0]];
+        if (lines[0] > 0) {
+          linesToDisplay.push(lines[1]);
+        }
+        if (lines[1] > 0) {
+          linesToDisplay.push(lines[2]);
+        }
+        return linesToDisplay;
+      };
+
+      // Обновляем ранг на основе линий
       const calculateRank = () => {
         let maxRank = 0;
         for (let i = 0; i < lines.length; i++) {
@@ -123,7 +134,7 @@
         return maxRank;
       };
 
-      const calculatedRank = calculateRank(); 
+      const calculatedRank = calculateRank();
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -134,7 +145,7 @@
               className="h-12 w-auto" 
             />
           </div>
-
+          
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
           {/* Кнопки для быстрого расчета дохода */}
@@ -169,18 +180,40 @@
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
 
-            {/* Поля для ввода количества участников в линиях */}
-            {[...Array(calculatedRank)].map((_, index) => (
-              <div key={index}>
-                <label>Кол-во Club members в {index + 1}-й линии:</label>
+            {/* Количество участников для первой линии */}
+            <label>Кол-во Club members в 1-й линии:</label>
+            <input 
+              type="text" 
+              value={removeLeadingZero(lines[0].toString())} 
+              onChange={e => handleLineChange(0, +e.target.value)} 
+              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+            />
+
+            {/* Количество участников для второй линии, если в первой есть хотя бы 1 человек */}
+            {lines[0] > 0 && (
+              <div>
+                <label>Кол-во Club members в 2-й линии:</label>
                 <input 
                   type="text" 
-                  value={removeLeadingZero(lines[index].toString())} 
-                  onChange={e => handleLineChange(index, +e.target.value)} 
+                  value={removeLeadingZero(lines[1].toString())} 
+                  onChange={e => handleLineChange(1, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                 />
               </div>
-            ))}
+            )}
+
+            {/* Количество участников для третьей линии, если во второй есть хотя бы 1 человек */}
+            {lines[1] > 0 && (
+              <div>
+                <label>Кол-во Club members в 3-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[2].toString())} 
+                  onChange={e => handleLineChange(2, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
 
             <label>Сколько PV на одного человека:</label>
             <input 
