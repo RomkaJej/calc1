@@ -17,11 +17,10 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий, начальное значение 0
+      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [rank, setRank] = useState(1); // Ранг
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
+      const [rank, setRank] = useState(1);  // Ранг
 
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -36,17 +35,10 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      };
+      }
 
       const structuralBonus = calculateBonus();
       const totalEur = structuralBonus;
-
-      // Функция для изменения количества участников в каждой линии
-      const handleLineChange = (index, value) => {
-        const updatedLines = [...lines];
-        updatedLines[index] = value;
-        setLines(updatedLines);
-      };
 
       // Обработчик для кнопок с доходом
       const handleQuickIncome = (income) => {
@@ -135,13 +127,17 @@
             {/* Количество участников для каждой линии */}
             {lines.map((line, index) => (
               <div key={index}>
-                <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
-                <input 
-                  type="text" 
-                  value={line} 
-                  onChange={e => handleLineChange(index, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
+                {index === 0 || lines[index - 1] > 0 ? (
+                  <>
+                    <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
+                    <input 
+                      type="text" 
+                      value={line} 
+                      onChange={e => handleLineChange(index, +e.target.value)} 
+                      className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                    />
+                  </>
+                ) : null}
               </div>
             ))}
 
@@ -171,8 +167,9 @@
       );
     }
 
-    ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
+    ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 
 </body>
+
 </html>
