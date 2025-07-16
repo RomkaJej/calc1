@@ -23,6 +23,7 @@
 
     function MLMCalculator() {
       // Изначальные данные
+      const [rank, setRank] = useState(1); // Ранг пользователя
       const [lines, setLines] = useState([0, 0, 0]);  // Начальные данные для 3 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
@@ -79,20 +80,31 @@
           remainingIncome -= getLineBonus(minUsers, linePercents[i]);
         }
         setLines(updatedLines);
+
+        // Автоматическое изменение ранга, если требуется
+        const newRank = Math.min(updatedLines.length, 10); // Устанавливаем ранг так, чтобы он соответствовал количеству линий
+        setRank(newRank);
       };
 
-      // Функция для вычисления ранга на основе количества людей
-      const calculateRank = () => {
-        let maxRank = 0;
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i] > 0) {
-            maxRank = i + 1;
-          }
+      // Рассчитываем минимально необходимое количество людей для достижения заданной суммы
+      const calculateMinUsers = (income) => {
+        let totalIncome = 0;
+        let usersForIncome = [];
+        for (let i = 0; i < linePercents.length; i++) {
+          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); // Округляем вверх
+          usersForIncome[i] = minUsers;
+          totalIncome += getLineBonus(minUsers, linePercents[i]);
+          if (totalIncome >= income) break;
         }
-        return maxRank;
+        return usersForIncome;
       };
 
-      const rank = calculateRank(); // Автоматическое вычисление ранга
+      // Обработчик для кнопок
+      const handleQuickIncome = (income) => {
+        setIncome(income);
+        const minUsers = calculateMinUsers(income);
+        setLines(minUsers);
+      };
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -109,19 +121,19 @@
           {/* Кнопки для быстрого расчета дохода */}
           <div className="flex justify-between gap-4 mb-6">
             <button 
-              onClick={() => setIncome(500)} 
+              onClick={() => handleQuickIncome(500)} 
               className="bg-green-500 text-white py-2 px-4 rounded-lg"
             >
               €500
             </button>
             <button 
-              onClick={() => setIncome(1000)} 
+              onClick={() => handleQuickIncome(1000)} 
               className="bg-green-500 text-white py-2 px-4 rounded-lg"
             >
               €1000
             </button>
             <button 
-              onClick={() => setIncome(1500)} 
+              onClick={() => handleQuickIncome(1500)} 
               className="bg-green-500 text-white py-2 px-4 rounded-lg"
             >
               €1500
