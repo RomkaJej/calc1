@@ -22,9 +22,9 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      // Данные из ТЗ
+      // Изначальные данные
       const [rank, setRank] = useState(1); // Ранг пользователя
-      const [lines, setLines] = useState([3, 3, 3]);  // Число участников в линиях
+      const [lines, setLines] = useState([3, 3, 3]);  // Начальные данные для 3 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [got3ClubInStart, setGot3ClubInStart] = useState(true);
@@ -51,7 +51,7 @@
       const structuralBonus = calculateBonus();
       const gvBonus = getLineBonus(lines[0], 0.1); // gv всегда на первой линии
       const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-      const startBonus = got3ClubInStart ? 30 : 0;
+      const startBonus = (isNewbiePeriod && lines.length >= 1) ? 30 : 0; // Автоматически начисляется, если в новичковом периоде и есть хотя бы 1 линия
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
       // Функция для изменения количества участников в линиях
