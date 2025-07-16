@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,10 +18,12 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия всегда с 1
-      const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [rank, setRank] = useState(1); // Ранг
-      
+      const [lines, setLines] = useState(Array(10).fill(0));  // 10 линий
+      const [pvPerUser, setPvPerUser] = useState(90);  // PV за одного человека
+      const [rank, setRank] = useState(1);  // Ранг
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
+      const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
+
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
 
@@ -34,15 +37,52 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      };
+      }
 
-      const totalEur = calculateBonus();
+      const structuralBonus = calculateBonus();
+      const gvBonus = getLineBonus(lines[0], 0.1); 
+      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
+      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
+      const totalEur = structuralBonus + newbieBonus + startBonus;
 
       // Функция для изменения количества участников в каждой линии
       const handleLineChange = (index, value) => {
         const updatedLines = [...lines];
         updatedLines[index] = value;
         setLines(updatedLines);
+      };
+
+      // Убираем ведущие нули
+      const removeLeadingZero = (value) => {
+        return value.replace(/^0+/, '') || '0'; 
+      };
+
+      // Обработчик для кнопок с доходом
+      const handleQuickIncome = (income) => {
+        setIncomeTarget(income); // Устанавливаем цель дохода
+        const updatedLines = calculateMinUsers(income); // Вычисляем минимальные значения для линий
+        setLines(updatedLines); // Обновляем линии
+      };
+
+      // Рассчитываем минимальное количество пользователей для нужного дохода
+      const calculateMinUsers = (income) => {
+        let totalIncome = 0;
+        let usersForIncome = [];
+        let lineUsers = [1];  // Начинаем с 1-го человека в первой линии
+
+        // Заполняем все линии, начиная с первой
+        for (let i = 0; i < linePercents.length; i++) {
+          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); 
+          usersForIncome[i] = minUsers;
+
+          // Формируем схему, где каждый участник из предыдущей линии приводит 3 человека
+          let nextLineUsers = lineUsers[i] * 3;
+          lineUsers.push(nextLineUsers);
+
+          totalIncome += getLineBonus(nextLineUsers, linePercents[i]);
+          if (totalIncome >= income) break;
+        }
+        return usersForIncome;
       };
 
       // Рассчитываем ранг на основе линий
@@ -58,6 +98,7 @@
 
       const calculatedRank = calculateRank();
 
+      // Обновляем ранг на основе линий
       useEffect(() => {
         setRank(calculatedRank);
       }, [lines]);
@@ -74,6 +115,28 @@
 
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
+          {/* Кнопки для быстрого расчета дохода */}
+          <div className="flex justify-between gap-4 mb-6">
+            <button 
+              onClick={() => handleQuickIncome(500)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €500
+            </button>
+            <button 
+              onClick={() => handleQuickIncome(1000)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €1000
+            </button>
+            <button 
+              onClick={() => handleQuickIncome(1500)} 
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              €1500
+            </button>
+          </div>
+
           <div className="space-y-4 mt-6">
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
             <input 
@@ -84,18 +147,125 @@
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
 
-            {/* Количество участников для каждой линии */}
-            {lines.map((line, index) => (
-              <div key={index}>
-                <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
+            {/* Количество участников для первой линии */}
+            <label>Кол-во Club members в 1-й линии:</label>
+            <input 
+              type="text" 
+              value={removeLeadingZero(lines[0].toString())} 
+              onChange={e => handleLineChange(0, +e.target.value)} 
+              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+            />
+
+            {/* Количество участников для второй линии, если в первой есть хотя бы 1 человек */}
+            {lines[0] > 0 && (
+              <div>
+                <label>Кол-во Club members в 2-й линии:</label>
                 <input 
                   type="text" 
-                  value={line} 
-                  onChange={e => handleLineChange(index, +e.target.value)} 
+                  value={removeLeadingZero(lines[1].toString())} 
+                  onChange={e => handleLineChange(1, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                 />
               </div>
-            ))}
+            )}
+
+            {/* Количество участников для третьей линии, если во второй есть хотя бы 1 человек */}
+            {lines[1] > 0 && (
+              <div>
+                <label>Кол-во Club members в 3-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[2].toString())} 
+                  onChange={e => handleLineChange(2, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {/* Добавление остальных линий */}
+            {lines[2] > 0 && (
+              <div>
+                <label>Кол-во Club members в 4-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[3].toString())} 
+                  onChange={e => handleLineChange(3, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[3] > 0 && (
+              <div>
+                <label>Кол-во Club members в 5-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[4].toString())} 
+                  onChange={e => handleLineChange(4, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[4] > 0 && (
+              <div>
+                <label>Кол-во Club members в 6-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[5].toString())} 
+                  onChange={e => handleLineChange(5, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[5] > 0 && (
+              <div>
+                <label>Кол-во Club members в 7-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[6].toString())} 
+                  onChange={e => handleLineChange(6, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[6] > 0 && (
+              <div>
+                <label>Кол-во Club members в 8-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[7].toString())} 
+                  onChange={e => handleLineChange(7, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[7] > 0 && (
+              <div>
+                <label>Кол-во Club members в 9-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[8].toString())} 
+                  onChange={e => handleLineChange(8, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
+
+            {lines[8] > 0 && (
+              <div>
+                <label>Кол-во Club members в 10-й линии:</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(lines[9].toString())} 
+                  onChange={e => handleLineChange(9, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+            )}
 
             <label>Сколько PV на одного человека:</label>
             <input 
@@ -112,7 +282,12 @@
           </div>
 
           <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-3 shadow-lg">
-            <p><strong className="text-blue-600">Структурный бонус:</strong> €{totalEur.toFixed(2)}</p>
+            <p><strong className="text-blue-600">Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
+            <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
+            <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
+            <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
+            <hr />
+            <p><strong>💰 Общий доход:</strong> €{totalEur.toFixed(2)}</p>
           </div>
         </div>
       );
