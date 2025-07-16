@@ -18,11 +18,9 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      // Состояния
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия с 1 человеком
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия с 1
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [rank, setRank] = useState(1); // Ранг
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false); // Период новичка
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false); // Новичковый период
 
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -39,6 +37,20 @@
         return totalBonus;
       };
 
+      const totalEur = calculateBonus(); // Общий доход
+
+      // Функция для изменения количества участников в каждой линии
+      const handleLineChange = (index, value) => {
+        const updatedLines = [...lines];
+        updatedLines[index] = value;
+        setLines(updatedLines);
+      };
+
+      // Расчет бонусов
+      const gvBonus = totalEur * 0.1;  // Пример
+      const newbieBonus = totalEur * 0.05;  // Пример
+      const startBonus = totalEur * 0.02;  // Пример
+
       // Рассчитываем ранг на основе линий
       const calculateRank = () => {
         let maxRank = 0;
@@ -50,20 +62,7 @@
         return maxRank;
       };
 
-      // Расчет бонусов
-      const gvBonus = totalBonus * 0.1;  // Пример
-      const newbieBonus = totalBonus * 0.05;  // Пример
-      const startBonus = totalBonus * 0.02;  // Пример
-
-      // Обработчик изменения количества людей в линиях
-      const handleLineChange = (index, value) => {
-        const updatedLines = [...lines];
-        updatedLines[index] = value;
-        setLines(updatedLines);
-      };
-
-      const totalEur = calculateBonus();  // Общий доход в евро
-      const calculatedRank = calculateRank();  // Вычисляем ранг
+      const calculatedRank = calculateRank();
 
       useEffect(() => {
         setRank(calculatedRank);
@@ -102,6 +101,7 @@
                       value={line}
                       onChange={(e) => handleLineChange(index, +e.target.value)}
                       className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                      min="0" // Ограничиваем ввод отрицательных значений
                     />
                   </>
                 ) : null}
@@ -114,6 +114,7 @@
               value={pvPerUser}
               onChange={(e) => setPvPerUser(+e.target.value)}
               className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+              min="0"
             />
 
             <label className="flex items-center gap-2">
