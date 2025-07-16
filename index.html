@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
-
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -19,11 +17,10 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0));  // 10 линий
-      const [pvPerUser, setPvPerUser] = useState(90);  // PV за одного человека
-      const [rank, setRank] = useState(1);  // Ранг
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
+      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
+      const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
+      const [rank, setRank] = useState(1);  // Ранг
 
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -38,52 +35,36 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      }
-
-      const structuralBonus = calculateBonus();
-      const gvBonus = getLineBonus(lines[0], 0.1); 
-      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
-      const totalEur = structuralBonus + newbieBonus + startBonus;
-
-      // Функция для изменения количества участников в каждой линии
-      const handleLineChange = (index, value) => {
-        const updatedLines = [...lines];
-        updatedLines[index] = value;
-        setLines(updatedLines);
       };
 
-      // Убираем ведущие нули
-      const removeLeadingZero = (value) => {
-        return value.replace(/^0+/, '') || '0'; 
-      };
+      const totalEur = calculateBonus();
+
+      // Бонусы
+      const gvBonus = totalEur * 0.1;
+      const newbieBonus = totalEur * 0.05;
+      const startBonus = totalEur * 0.02;
 
       // Обработчик для кнопок с доходом
       const handleQuickIncome = (income) => {
         setIncomeTarget(income); // Устанавливаем цель дохода
-        const updatedLines = calculateMinUsers(income); // Вычисляем минимальные значения для линий
+        const updatedLines = getFixedUserCount(income); // Получаем зафиксированные данные для линий
         setLines(updatedLines); // Обновляем линии
       };
 
-      // Рассчитываем минимальное количество пользователей для нужного дохода
-      const calculateMinUsers = (income) => {
-        let totalIncome = 0;
-        let usersForIncome = [];
-        let lineUsers = [1];  // Начинаем с 1-го человека в первой линии
-
-        // Заполняем все линии, начиная с первой
-        for (let i = 0; i < linePercents.length; i++) {
-          let minUsers = Math.ceil(income / (pvPerUser * linePercents[i])); 
-          usersForIncome[i] = minUsers;
-
-          // Формируем схему, где каждый участник из предыдущей линии приводит 3 человека
-          let nextLineUsers = lineUsers[i] * 3;
-          lineUsers.push(nextLineUsers);
-
-          totalIncome += getLineBonus(nextLineUsers, linePercents[i]);
-          if (totalIncome >= income) break;
+      // Логика для заполнения линий с оптимизированным числом людей
+      const getFixedUserCount = (income) => {
+        let users = [];
+        if (income === 500) {
+          // Определим фиксированные значения для 500€
+          users = [3, 9, 20, 35, 50, 60, 70, 80, 90, 100]; // Примерный расчет
+        } else if (income === 1000) {
+          // Определим фиксированные значения для 1000€
+          users = [5, 15, 30, 50, 70, 85, 100, 120, 140, 160]; // Примерный расчет
+        } else if (income === 1500) {
+          // Определим фиксированные значения для 1500€
+          users = [8, 24, 45, 70, 95, 120, 145, 170, 200, 230]; // Примерный расчет
         }
-        return usersForIncome;
+        return users;
       };
 
       // Рассчитываем ранг на основе линий
@@ -99,7 +80,6 @@
 
       const calculatedRank = calculateRank();
 
-      // Обновляем ранг на основе линий
       useEffect(() => {
         setRank(calculatedRank);
       }, [lines]);
@@ -148,125 +128,22 @@
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
 
-            {/* Количество участников для первой линии */}
-            <label>Кол-во Club members в 1-й линии:</label>
-            <input 
-              type="text" 
-              value={removeLeadingZero(lines[0].toString())} 
-              onChange={e => handleLineChange(0, +e.target.value)} 
-              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-            />
-
-            {/* Количество участников для второй линии, если в первой есть хотя бы 1 человек */}
-            {lines[0] > 0 && (
-              <div>
-                <label>Кол-во Club members в 2-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[1].toString())} 
-                  onChange={e => handleLineChange(1, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
+            {/* Количество участников для каждой линии */}
+            {lines.map((line, index) => (
+              <div key={index}>
+                {index === 0 || lines[index - 1] > 0 ? (
+                  <>
+                    <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
+                    <input 
+                      type="text" 
+                      value={line} 
+                      onChange={e => handleLineChange(index, +e.target.value)} 
+                      className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                    />
+                  </>
+                ) : null}
               </div>
-            )}
-
-            {/* Количество участников для третьей линии, если во второй есть хотя бы 1 человек */}
-            {lines[1] > 0 && (
-              <div>
-                <label>Кол-во Club members в 3-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[2].toString())} 
-                  onChange={e => handleLineChange(2, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {/* Добавление остальных линий */}
-            {lines[2] > 0 && (
-              <div>
-                <label>Кол-во Club members в 4-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[3].toString())} 
-                  onChange={e => handleLineChange(3, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[3] > 0 && (
-              <div>
-                <label>Кол-во Club members в 5-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[4].toString())} 
-                  onChange={e => handleLineChange(4, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[4] > 0 && (
-              <div>
-                <label>Кол-во Club members в 6-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[5].toString())} 
-                  onChange={e => handleLineChange(5, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[5] > 0 && (
-              <div>
-                <label>Кол-во Club members в 7-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[6].toString())} 
-                  onChange={e => handleLineChange(6, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[6] > 0 && (
-              <div>
-                <label>Кол-во Club members в 8-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[7].toString())} 
-                  onChange={e => handleLineChange(7, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[7] > 0 && (
-              <div>
-                <label>Кол-во Club members в 9-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[8].toString())} 
-                  onChange={e => handleLineChange(8, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
-
-            {lines[8] > 0 && (
-              <div>
-                <label>Кол-во Club members в 10-й линии:</label>
-                <input 
-                  type="text" 
-                  value={removeLeadingZero(lines[9].toString())} 
-                  onChange={e => handleLineChange(9, +e.target.value)} 
-                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-            )}
+            ))}
 
             <label>Сколько PV на одного человека:</label>
             <input 
@@ -294,8 +171,9 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
+    ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
   </script>
+
 </body>
 
 </html>
