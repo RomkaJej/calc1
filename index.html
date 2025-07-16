@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,8 +20,9 @@
     function MLMCalculator() {
       const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
+      const [rank, setRank] = useState(1); // Ранг
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
-      const [rank, setRank] = useState(1);  // Ранг
 
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -38,7 +40,22 @@
       }
 
       const structuralBonus = calculateBonus();
-      const totalEur = structuralBonus;
+      const gvBonus = getLineBonus(lines[0], 0.1); 
+      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
+      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
+      const totalEur = structuralBonus + newbieBonus + startBonus;
+
+      // Функция для изменения количества участников в каждой линии
+      const handleLineChange = (index, value) => {
+        const updatedLines = [...lines];
+        updatedLines[index] = value;
+        setLines(updatedLines);
+      };
+
+      // Убираем ведущие нули
+      const removeLeadingZero = (value) => {
+        return value.replace(/^0+/, '') || '0'; 
+      };
 
       // Обработчик для кнопок с доходом
       const handleQuickIncome = (income) => {
@@ -127,17 +144,13 @@
             {/* Количество участников для каждой линии */}
             {lines.map((line, index) => (
               <div key={index}>
-                {index === 0 || lines[index - 1] > 0 ? (
-                  <>
-                    <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
-                    <input 
-                      type="text" 
-                      value={line} 
-                      onChange={e => handleLineChange(index, +e.target.value)} 
-                      className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                    />
-                  </>
-                ) : null}
+                <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
+                <input 
+                  type="text" 
+                  value={removeLeadingZero(line.toString())} 
+                  onChange={e => handleLineChange(index, +e.target.value)} 
+                  className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
+                />
               </div>
             ))}
 
