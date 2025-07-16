@@ -20,7 +20,6 @@
       const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // 10 линий, начальное значение 1 в первой линии
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [rank, setRank] = useState(1); // Ранг
-      const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
       
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -45,29 +44,6 @@
         const updatedLines = [...lines];
         updatedLines[index] = value;
         setLines(updatedLines);
-      };
-
-      // Обработчик для кнопок с доходом
-      const handleQuickIncome = (income) => {
-        setIncomeTarget(income); // Устанавливаем цель дохода
-        const updatedLines = getFixedUserCount(income); // Получаем зафиксированные данные для линий
-        setLines(updatedLines); // Обновляем линии
-      };
-
-      // Логика для заполнения линий с оптимизированным числом людей
-      const getFixedUserCount = (income) => {
-        let users = [];
-        if (income === 500) {
-          // Определим фиксированные значения для 500€
-          users = [3, 9, 20, 35, 50, 60, 70, 80, 90, 100]; // Примерный расчет
-        } else if (income === 1000) {
-          // Определим фиксированные значения для 1000€
-          users = [5, 15, 30, 50, 70, 85, 100, 120, 140, 160]; // Примерный расчет
-        } else if (income === 1500) {
-          // Определим фиксированные значения для 1500€
-          users = [8, 24, 45, 70, 95, 120, 145, 170, 200, 230]; // Примерный расчет
-        }
-        return users;
       };
 
       // Рассчитываем ранг на основе линий
@@ -98,28 +74,6 @@
           </div>
 
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
-
-          {/* Кнопки для быстрого расчета дохода */}
-          <div className="flex justify-between gap-4 mb-6">
-            <button 
-              onClick={() => handleQuickIncome(500)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €500
-            </button>
-            <button 
-              onClick={() => handleQuickIncome(1000)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €1000
-            </button>
-            <button 
-              onClick={() => handleQuickIncome(1500)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €1500
-            </button>
-          </div>
 
           <div className="space-y-4 mt-6">
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
