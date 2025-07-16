@@ -19,52 +19,58 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      // Данные из ТЗ
-      const [rank, setRank] = useState(1); // Ранг пользователя
-      const [firstLine, setFirstLine] = useState(3);  // Число участников в первой линии
-      const [secondLine, setSecondLine] = useState(3); // Число участников во второй линии
-      const [thirdLine, setThirdLine] = useState(3);  // Число участников в третьей линии
-      const [pvPerUser, setPvPerUser] = useState(90); // Количество PV на пользователя
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Бонус новичка
-      const [got3ClubInStart, setGot3ClubInStart] = useState(true); // Стартовый бонус за 3 Club
-      const [bonusPercentage, setBonusPercentage] = useState(0.1);  // Процент бонуса по линиям
+      // Изначальные данные
+      const [rank, setRank] = useState(1);
+      const [lines, setLines] = useState([3, 3, 3]); // Начальные данные для 3 линий
+      const [pvPerUser, setPvPerUser] = useState(90);
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
+      const [got3ClubInStart, setGot3ClubInStart] = useState(true);
 
-      // Проценты бонусов по линиям (можно добавить больше линий, если нужно)
       const linePercents = [
-        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005
+        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 // Проценты для каждой линии
       ];
 
-      // Функция для расчета бонуса по каждой линии
+      // Функция для вычисления бонуса по линии
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
-      // Рассчитываем бонус по всем линиям
+      // Функция для расчета бонусов на основе доступных линий
       const calculateBonus = () => {
         let totalBonus = 0;
-        // Для каждой линии добавляем бонус, если ранг пользователя больше или равен номеру линии
-        for (let i = 0; i < Math.min(linePercents.length, 3); i++) {
+        for (let i = 0; i < lines.length; i++) {
           if (rank >= i + 1) {
-            totalBonus += getLineBonus([firstLine, secondLine, thirdLine][i], linePercents[i]);
+            totalBonus += getLineBonus(lines[i], linePercents[i]);
           }
         }
         return totalBonus;
       }
 
+      // Рассчитываем бонусы
       const structuralBonus = calculateBonus();
-      const gvBonus = getLineBonus(firstLine, 0.1); // предположим, что на первой линии всегда есть gv
-      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0; // бонус новичка
-      const startBonus = got3ClubInStart ? 30 : 0; // стартовый бонус
-      const totalEur = structuralBonus + newbieBonus + startBonus; // Итоговый доход
+      const gvBonus = getLineBonus(lines[0], 0.1); // gv всегда на первой линии
+      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
+      const startBonus = got3ClubInStart ? 30 : 0;
+      const totalEur = structuralBonus + newbieBonus + startBonus;
 
+      // Функция для изменения количества участников в линиях
       const handleLineChange = (index, value) => {
-        const updatedLines = [firstLine, secondLine, thirdLine];
+        const updatedLines = [...lines];
         updatedLines[index] = value;
-        setFirstLine(updatedLines[0]);
-        setSecondLine(updatedLines[1]);
-        setThirdLine(updatedLines[2]);
+        setLines(updatedLines);
       };
+
+      // Валидация: ограничение линий в зависимости от ранга
+      useEffect(() => {
+        // Обрезаем количество линий, если ранг меньше числа доступных линий
+        const maxLines = rank;
+        const updatedLines = [...lines];
+        if (updatedLines.length > maxLines) {
+          updatedLines.splice(maxLines); // Убираем лишние линии
+        }
+        setLines(updatedLines);
+      }, [rank]);
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
@@ -91,12 +97,12 @@
             <p className="text-center">{rank}</p>
 
             {/* Поля для ввода количества участников в линиях */}
-            {[firstLine, secondLine, thirdLine].map((line, index) => (
+            {[...Array(rank)].map((_, index) => (
               <div key={index}>
                 <label>Кол-во Club members в {index + 1}-й линии:</label>
                 <input 
                   type="number" 
-                  value={line} 
+                  value={lines[index] || 0} 
                   onChange={e => handleLineChange(index, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                   min="1"
