@@ -21,9 +21,10 @@
 
     function MLMCalculator() {
       const [rank, setRank] = useState(1); // Ранг
-      const [lines, setLines] = useState([0, 0, 0]);  // Линии
+      const [lines, setLines] = useState([0, 0, 0]);  // Линии (массив для 1, 2 и 3 линии)
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
+      const [desiredIncome, setDesiredIncome] = useState(0);
 
       // Проценты для каждой линии
       const linePercents = [
@@ -80,17 +81,7 @@
         return usersForIncome;
       };
 
-      // Включаем поля для каждой линии
-      useEffect(() => {
-        const maxLines = rank;
-        const updatedLines = [...lines];
-        if (updatedLines.length > maxLines) {
-          updatedLines.splice(maxLines); 
-        }
-        setLines(updatedLines);
-      }, [rank]);
-
-      // Рассчитываем ранг на основе количества людей в линиях
+      // Обновляем ранг на основе линий
       const calculateRank = () => {
         let maxRank = 0;
         for (let i = 0; i < lines.length; i++) {
@@ -102,6 +93,15 @@
       };
 
       const calculatedRank = calculateRank();
+
+      useEffect(() => {
+        const maxLines = calculatedRank;
+        const updatedLines = [...lines];
+        if (updatedLines.length > maxLines) {
+          updatedLines.splice(maxLines); 
+        }
+        setLines(updatedLines);
+      }, [calculatedRank]);
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
