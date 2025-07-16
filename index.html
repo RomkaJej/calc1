@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MLM-калькулятор дохода</title>
-
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-
 <body class="bg-green-600">
   <div id="root"></div>
 
@@ -20,20 +16,19 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState([0, 0, 0]);  // Линии
+      const [lines, setLines] = useState([0, 0, 0]);  // Линии (массив для 1, 2 и 3 линии)
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [desiredIncome, setDesiredIncome] = useState(0);
+      const [rank, setRank] = useState(1);  // Ранг
 
       // Проценты для каждой линии
-      const linePercents = [
-        0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005 
-      ];
+      const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
 
-      // Вычисление бонуса для каждой линии
+      // Рассчитываем бонусы для каждой линии
       const getLineBonus = (users, percent) => users * pvPerUser * percent;
 
-      // Рассчитываем бонусы
+      // Рассчитываем общий бонус
       const calculateBonus = () => {
         let totalBonus = 0;
         for (let i = 0; i < lines.length; i++) {
@@ -92,13 +87,9 @@
 
       const calculatedRank = calculateRank();
 
+      // Обновляем ранг на основе линий
       useEffect(() => {
-        const maxLines = calculatedRank;
-        const updatedLines = [...lines];
-        if (updatedLines.length > maxLines) {
-          updatedLines.splice(maxLines); 
-        }
-        setLines(updatedLines);
+        setRank(calculatedRank);
       }, [lines]);
 
       return (
@@ -209,5 +200,4 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 </body>
-
 </html>
