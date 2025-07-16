@@ -79,20 +79,20 @@
         return value.replace(/^0+/, '') || '0'; // Убирает нули и ставит 0, если пусто
       };
 
-      // Функция для расчета количества участников, чтобы достичь нужного дохода
+      // Функция для расчета минимального количества участников, чтобы достичь нужного дохода
       const setIncome = (income) => {
         setDesiredIncome(income);
         let updatedLines = [...lines];
         let totalIncome = 0;
-        let usersNeeded = 0;
+
         // Примерная логика для распределения нужного дохода
         for (let i = 0; i < updatedLines.length; i++) {
           if (rank >= i + 1) {
-            // Примерный расчет участников для нужного дохода
-            usersNeeded = Math.floor(income / (pvPerUser * linePercents[i]));
+            // Примерный расчет минимального количества участников для нужного дохода
+            let usersNeeded = Math.ceil(income / (pvPerUser * linePercents[i]));  // Округляем вверх
             updatedLines[i] = usersNeeded;
             totalIncome = calculateBonus();
-            if (totalIncome >= income) break;
+            if (totalIncome >= income) break; // Останавливаем, если достигли нужного дохода
           }
         }
         setLines(updatedLines);
