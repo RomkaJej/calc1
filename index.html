@@ -24,7 +24,7 @@
     function MLMCalculator() {
       // Изначальные данные
       const [rank, setRank] = useState(1); // Ранг пользователя
-      const [lines, setLines] = useState([0]);  // Начальные данные для первой линии
+      const [lines, setLines] = useState([0, 0, 0]);  // Начальные данные для 3 линий
       const [pvPerUser, setPvPerUser] = useState(90);
       const [isNewbiePeriod, setIsNewbiePeriod] = useState(true);
       const [desiredIncome, setDesiredIncome] = useState(0); // Для отслеживания желаемого дохода
@@ -115,6 +115,19 @@
         }
         setLines(updatedLines);
       }, [rank]);
+
+      // Функция для вычисления ранга на основе количества людей
+      const calculateRank = () => {
+        let maxRank = 0;
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i] > 0) {
+            maxRank = i + 1;
+          }
+        }
+        return maxRank;
+      };
+
+      const rank = calculateRank(); // Автоматическое вычисление ранга
 
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
