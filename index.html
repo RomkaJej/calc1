@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,8 +19,6 @@
     function MLMCalculator() {
       const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [rank, setRank] = useState(1); // Ранг
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
 
       // Проценты для каждой линии
@@ -40,21 +37,13 @@
       }
 
       const structuralBonus = calculateBonus();
-      const gvBonus = getLineBonus(lines[0], 0.1); 
-      const newbieBonus = isNewbiePeriod ? structuralBonus * 0.25 : 0;
-      const startBonus = (isNewbiePeriod && lines[0] > 0) ? 30 : 0;
-      const totalEur = structuralBonus + newbieBonus + startBonus;
+      const totalEur = structuralBonus;
 
       // Функция для изменения количества участников в каждой линии
       const handleLineChange = (index, value) => {
         const updatedLines = [...lines];
         updatedLines[index] = value;
         setLines(updatedLines);
-      };
-
-      // Убираем ведущие нули
-      const removeLeadingZero = (value) => {
-        return value.replace(/^0+/, '') || '0'; 
       };
 
       // Обработчик для кнопок с доходом
@@ -147,7 +136,7 @@
                 <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
                 <input 
                   type="text" 
-                  value={removeLeadingZero(line.toString())} 
+                  value={line} 
                   onChange={e => handleLineChange(index, +e.target.value)} 
                   className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                 />
@@ -184,5 +173,4 @@
   </script>
 
 </body>
-
 </html>
