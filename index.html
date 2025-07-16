@@ -17,8 +17,10 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
+      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий, начальное значение 0
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
+      const [rank, setRank] = useState(1); // Ранг
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(true); // Период новичка
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
 
       // Проценты для каждой линии
@@ -34,7 +36,7 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      }
+      };
 
       const structuralBonus = calculateBonus();
       const totalEur = structuralBonus;
