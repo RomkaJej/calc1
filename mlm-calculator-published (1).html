@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MLM-калькулятор дохода</title>
+  <title>BFC калькулятор дохода</title>
+  
+  <!-- Подключение React, ReactDOM и Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Подключение TailwindCSS для стилизации -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-100">
+
+<body class="bg-green-600">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -41,24 +47,32 @@
       const totalEur = structuralBonus + newbieBonus + startBonus;
 
       return (
-        <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-xl space-y-6">
-          <h1 className="text-2xl font-bold text-center">MLM-калькулятор дохода</h1>
+        <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg space-y-6">
+          <div className="flex justify-center items-center mb-6">
+            <img 
+              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75" 
+              alt="Logo" 
+              className="h-12 w-auto" 
+            />
+          </div>
+          
+          <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
           <div className="space-y-3">
-            <label className="block">Текущий ранг (1-10):</label>
-            <input type="number" min={1} max={10} value={rank} onChange={e => setRank(+e.target.value)} className="w-full border rounded p-2" />
+            <label className="block text-gray-600">Текущий ранг (1-10):</label>
+            <input type="number" min={1} max={10} value={rank} onChange={e => setRank(+e.target.value)} className="input-field" />
 
             <label>Кол-во Club members в 1-й линии:</label>
-            <input type="number" value={firstLine} onChange={e => setFirstLine(+e.target.value)} className="w-full border rounded p-2" />
+            <input type="number" value={firstLine} onChange={e => setFirstLine(+e.target.value)} className="input-field" />
 
             <label>Кол-во Club members во 2-й линии:</label>
-            <input type="number" value={secondLine} onChange={e => setSecondLine(+e.target.value)} className="w-full border rounded p-2" />
+            <input type="number" value={secondLine} onChange={e => setSecondLine(+e.target.value)} className="input-field" />
 
             <label>Кол-во Club members в 3-й линии:</label>
-            <input type="number" value={thirdLine} onChange={e => setThirdLine(+e.target.value)} className="w-full border rounded p-2" />
+            <input type="number" value={thirdLine} onChange={e => setThirdLine(+e.target.value)} className="input-field" />
 
             <label>Сколько PV на одного человека:</label>
-            <input type="number" value={pvPerUser} onChange={e => setPvPerUser(+e.target.value)} className="w-full border rounded p-2" />
+            <input type="number" value={pvPerUser} onChange={e => setPvPerUser(+e.target.value)} className="input-field" />
 
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={isNewbiePeriod} onChange={() => setIsNewbiePeriod(!isNewbiePeriod)} />
@@ -72,7 +86,7 @@
           </div>
 
           <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-2">
-            <p><strong>Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
+            <p><strong className="text-blue-600">Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
             <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
             <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
             <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
@@ -86,4 +100,5 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 </body>
+
 </html>
