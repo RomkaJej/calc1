@@ -17,7 +17,7 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий, начальное значение 0
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // 10 линий, начальное значение 1 в первой линии
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
       const [rank, setRank] = useState(1); // Ранг
       const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
