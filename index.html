@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,10 +18,11 @@
     const { useState, useEffect } = React;
 
     function MLMCalculator() {
-      const [lines, setLines] = useState(Array(10).fill(0)); // 10 линий
+      // Состояния
+      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия с 1 человеком
       const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [incomeTarget, setIncomeTarget] = useState(500); // Заданный доход (по кнопкам)
-      const [rank, setRank] = useState(1);  // Ранг
+      const [rank, setRank] = useState(1); // Ранг
+      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false); // Период новичка
 
       // Проценты для каждой линии
       const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
@@ -35,32 +37,6 @@
           totalBonus += getLineBonus(lines[i], linePercents[i]);
         }
         return totalBonus;
-      }
-
-      const structuralBonus = calculateBonus();
-      const totalEur = structuralBonus;
-
-      // Обработчик для кнопок с доходом
-      const handleQuickIncome = (income) => {
-        setIncomeTarget(income); // Устанавливаем цель дохода
-        const updatedLines = getFixedUserCount(income); // Получаем зафиксированные данные для линий
-        setLines(updatedLines); // Обновляем линии
-      };
-
-      // Логика для заполнения линий с оптимизированным числом людей
-      const getFixedUserCount = (income) => {
-        let users = [];
-        if (income === 500) {
-          // Определим фиксированные значения для 500€
-          users = [3, 9, 20, 35, 50, 60, 70, 80, 90, 100]; // Примерный расчет
-        } else if (income === 1000) {
-          // Определим фиксированные значения для 1000€
-          users = [5, 15, 30, 50, 70, 85, 100, 120, 140, 160]; // Примерный расчет
-        } else if (income === 1500) {
-          // Определим фиксированные значения для 1500€
-          users = [8, 24, 45, 70, 95, 120, 145, 170, 200, 230]; // Примерный расчет
-        }
-        return users;
       };
 
       // Рассчитываем ранг на основе линий
@@ -74,7 +50,20 @@
         return maxRank;
       };
 
-      const calculatedRank = calculateRank();
+      // Расчет бонусов
+      const gvBonus = totalBonus * 0.1;  // Пример
+      const newbieBonus = totalBonus * 0.05;  // Пример
+      const startBonus = totalBonus * 0.02;  // Пример
+
+      // Обработчик изменения количества людей в линиях
+      const handleLineChange = (index, value) => {
+        const updatedLines = [...lines];
+        updatedLines[index] = value;
+        setLines(updatedLines);
+      };
+
+      const totalEur = calculateBonus();  // Общий доход в евро
+      const calculatedRank = calculateRank();  // Вычисляем ранг
 
       useEffect(() => {
         setRank(calculatedRank);
@@ -83,43 +72,21 @@
       return (
         <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
           <div className="flex justify-center items-center mb-6">
-            <img 
-              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75" 
-              alt="Logo" 
-              className="h-12 w-auto" 
+            <img
+              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75"
+              alt="Logo"
+              className="h-12 w-auto"
             />
           </div>
 
           <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
 
-          {/* Кнопки для быстрого расчета дохода */}
-          <div className="flex justify-between gap-4 mb-6">
-            <button 
-              onClick={() => handleQuickIncome(500)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €500
-            </button>
-            <button 
-              onClick={() => handleQuickIncome(1000)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €1000
-            </button>
-            <button 
-              onClick={() => handleQuickIncome(1500)} 
-              className="bg-green-500 text-white py-2 px-4 rounded-lg"
-            >
-              €1500
-            </button>
-          </div>
-
           <div className="space-y-4 mt-6">
             <label className="block text-gray-600">Текущий ранг (1-10):</label>
-            <input 
+            <input
               type="text"
-              value={calculatedRank} 
-              readOnly 
+              value={calculatedRank}
+              readOnly
               className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
             />
             <p className="text-center">Ранг: {calculatedRank}</p>
@@ -130,10 +97,10 @@
                 {index === 0 || lines[index - 1] > 0 ? (
                   <>
                     <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
-                    <input 
-                      type="text" 
-                      value={line} 
-                      onChange={e => handleLineChange(index, +e.target.value)} 
+                    <input
+                      type="number"
+                      value={line}
+                      onChange={(e) => handleLineChange(index, +e.target.value)}
                       className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
                     />
                   </>
@@ -142,10 +109,10 @@
             ))}
 
             <label>Сколько PV на одного человека:</label>
-            <input 
-              type="number" 
-              value={pvPerUser} 
-              onChange={e => setPvPerUser(+e.target.value)} 
+            <input
+              type="number"
+              value={pvPerUser}
+              onChange={(e) => setPvPerUser(+e.target.value)}
               className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
             />
 
@@ -156,7 +123,7 @@
           </div>
 
           <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-3 shadow-lg">
-            <p><strong className="text-blue-600">Структурный бонус:</strong> €{structuralBonus.toFixed(2)}</p>
+            <p><strong className="text-blue-600">Структурный бонус:</strong> €{totalEur.toFixed(2)}</p>
             <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
             <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
             <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
@@ -167,7 +134,7 @@
       );
     }
 
-    ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
+    ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
   </script>
 
 </body>
