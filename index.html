@@ -38,6 +38,17 @@
         button:hover {
             background-color: #218838;
         }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +135,82 @@
           </div>
         )}
 
-        {/* Continue with additional lines for rank 4-10 */}
+        {rank > 3 && (
+          <div>
+            <label>Кол-во Club members в 4-й линии:</label>
+            <input
+              type="number"
+              value={members[4]}
+              onChange={(e) => handleMemberChange(4, e)}
+            />
+          </div>
+        )}
+
+        {rank > 4 && (
+          <div>
+            <label>Кол-во Club members в 5-й линии:</label>
+            <input
+              type="number"
+              value={members[5]}
+              onChange={(e) => handleMemberChange(5, e)}
+            />
+          </div>
+        )}
+
+        {rank > 5 && (
+          <div>
+            <label>Кол-во Club members в 6-й линии:</label>
+            <input
+              type="number"
+              value={members[6]}
+              onChange={(e) => handleMemberChange(6, e)}
+            />
+          </div>
+        )}
+
+        {rank > 6 && (
+          <div>
+            <label>Кол-во Club members в 7-й линии:</label>
+            <input
+              type="number"
+              value={members[7]}
+              onChange={(e) => handleMemberChange(7, e)}
+            />
+          </div>
+        )}
+
+        {rank > 7 && (
+          <div>
+            <label>Кол-во Club members в 8-й линии:</label>
+            <input
+              type="number"
+              value={members[8]}
+              onChange={(e) => handleMemberChange(8, e)}
+            />
+          </div>
+        )}
+
+        {rank > 8 && (
+          <div>
+            <label>Кол-во Club members в 9-й линии:</label>
+            <input
+              type="number"
+              value={members[9]}
+              onChange={(e) => handleMemberChange(9, e)}
+            />
+          </div>
+        )}
+
+        {rank > 9 && (
+          <div>
+            <label>Кол-во Club members в 10-й линии:</label>
+            <input
+              type="number"
+              value={members[10]}
+              onChange={(e) => handleMemberChange(10, e)}
+            />
+          </div>
+        )}
 
         <div>
           <label>Сколько PV на одного человека:</label>
