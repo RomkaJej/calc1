@@ -1,143 +1,155 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MLM-калькулятор дохода</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLM Калькулятор</title>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.16.0/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+        }
+        .calculator {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            color: black;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
+<body>
 
-<body class="bg-green-600">
-  <div id="root"></div>
+<div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+<script type="text/babel">
+  const { useState, useEffect } = React;
 
-    function MLMCalculator() {
-      const [lines, setLines] = useState([1, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // Первая линия с 1
-      const [pvPerUser, setPvPerUser] = useState(90); // PV за одного человека
-      const [isNewbiePeriod, setIsNewbiePeriod] = useState(false); // Новичковый период
+  const MLMCalculator = () => {
+    const [rank, setRank] = useState(1);
+    const [members, setMembers] = useState({ 1: 3, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 });
+    const [pvPerPerson, setPvPerPerson] = useState(90);
+    const [totalBonus, setTotalBonus] = useState(0);
 
-      // Проценты для каждой линии
-      const linePercents = [0.1, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.005, 0.005];
+    useEffect(() => {
+      // Calculate total bonus based on the inputs
+      calculateBonus();
+    }, [rank, members]);
 
-      // Рассчитываем бонусы для каждой линии
-      const getLineBonus = (users, percent) => users * pvPerUser * percent;
+    const calculateBonus = () => {
+      // Simplified total bonus calculation logic for example
+      let totalEur = 0;
+      const totalMembers = Object.values(members).reduce((acc, curr) => acc + curr, 0);
+      totalEur = totalMembers * pvPerPerson * 0.1; // Calculate bonus as a simple example
+      setTotalBonus(totalEur);
+    };
 
-      // Рассчитываем общий бонус
-      const calculateBonus = () => {
-        let totalBonus = 0;
-        for (let i = 0; i < lines.length; i++) {
-          totalBonus += getLineBonus(lines[i], linePercents[i]);
-        }
-        return totalBonus;
-      };
+    const handleRankChange = (e) => {
+      setRank(parseInt(e.target.value));
+      calculateBonus(); // Recalculate when rank changes
+    };
 
-      const totalEur = calculateBonus(); // Общий доход
+    const handleMemberChange = (line, e) => {
+      setMembers(prevMembers => {
+        const newMembers = { ...prevMembers, [line]: parseInt(e.target.value) };
+        return newMembers;
+      });
+    };
 
-      // Функция для изменения количества участников в каждой линии
-      const handleLineChange = (index, value) => {
-        const updatedLines = [...lines];
-        updatedLines[index] = value;
-        setLines(updatedLines);
-      };
+    return (
+      <div className="calculator">
+        <h1>MLM калькулятор дохода</h1>
+        <div>
+          <label>Текущий ранг (1-10): </label>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={rank}
+            onChange={handleRankChange}
+          />
+          <p>Ранг: {rank}</p>
+        </div>
 
-      // Расчет бонусов
-      const gvBonus = totalEur * 0.1;  // Пример
-      const newbieBonus = totalEur * 0.05;  // Пример
-      const startBonus = totalEur * 0.02;  // Пример
+        <div>
+          <label>Кол-во Club members в 1-й линии:</label>
+          <input
+            type="number"
+            value={members[1]}
+            onChange={(e) => handleMemberChange(1, e)}
+          />
+        </div>
 
-      // Рассчитываем ранг на основе линий
-      const calculateRank = () => {
-        let maxRank = 0;
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i] > 0) {
-            maxRank = i + 1;
-          }
-        }
-        return maxRank;
-      };
-
-      const calculatedRank = calculateRank();
-
-      useEffect(() => {
-        setRank(calculatedRank);
-      }, [lines]);
-
-      return (
-        <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg space-y-6">
-          <div className="flex justify-center items-center mb-6">
-            <img
-              src="https://bfc24.com/_next/image?url=https%3A%2F%2Fbfc24.com%2Fapi%2Ffiles%2FLayer_1.png&w=3840&q=75"
-              alt="Logo"
-              className="h-12 w-auto"
-            />
-          </div>
-
-          <h1 className="text-3xl font-bold text-center text-gray-800">MLM-калькулятор дохода</h1>
-
-          <div className="space-y-4 mt-6">
-            <label className="block text-gray-600">Текущий ранг (1-10):</label>
-            <input
-              type="text"
-              value={calculatedRank}
-              readOnly
-              className="w-full bg-gray-200 p-3 rounded-lg text-center text-gray-800"
-            />
-            <p className="text-center">Ранг: {calculatedRank}</p>
-
-            {/* Количество участников для каждой линии */}
-            {lines.map((line, index) => (
-              <div key={index}>
-                {index === 0 || lines[index - 1] > 0 ? (
-                  <>
-                    <label>{`Кол-во Club members в ${index + 1}-й линии:`}</label>
-                    <input
-                      type="number"
-                      value={line}
-                      onChange={(e) => handleLineChange(index, +e.target.value)}
-                      className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-                      min="0" // Ограничиваем ввод отрицательных значений
-                    />
-                  </>
-                ) : null}
-              </div>
-            ))}
-
-            <label>Сколько PV на одного человека:</label>
+        {rank > 1 && (
+          <div>
+            <label>Кол-во Club members в 2-й линии:</label>
             <input
               type="number"
-              value={pvPerUser}
-              onChange={(e) => setPvPerUser(+e.target.value)}
-              className="input-field border p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
-              min="0"
+              value={members[2]}
+              onChange={(e) => handleMemberChange(2, e)}
             />
-
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={isNewbiePeriod} onChange={() => setIsNewbiePeriod(!isNewbiePeriod)} />
-              Я в новичковом периоде
-            </label>
           </div>
+        )}
 
-          <div className="p-4 bg-gray-100 rounded-xl text-lg space-y-3 shadow-lg">
-            <p><strong className="text-blue-600">Структурный бонус:</strong> €{totalEur.toFixed(2)}</p>
-            <p><strong>Подарочный бонус (GV):</strong> {gvBonus.toFixed(2)} GV</p>
-            <p><strong>Бонус новичка:</strong> €{newbieBonus.toFixed(2)}</p>
-            <p><strong>Стартовый бонус:</strong> €{startBonus.toFixed(2)}</p>
-            <hr />
-            <p><strong>💰 Общий доход:</strong> €{totalEur.toFixed(2)}</p>
+        {rank > 2 && (
+          <div>
+            <label>Кол-во Club members в 3-й линии:</label>
+            <input
+              type="number"
+              value={members[3]}
+              onChange={(e) => handleMemberChange(3, e)}
+            />
           </div>
+        )}
+
+        {/* Continue with additional lines for rank 4-10 */}
+
+        <div>
+          <label>Сколько PV на одного человека:</label>
+          <input
+            type="number"
+            value={pvPerPerson}
+            onChange={(e) => setPvPerPerson(e.target.value)}
+          />
         </div>
-      );
-    }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<MLMCalculator />);
-  </script>
+        <div className="button-group">
+          <button onClick={() => setTotalBonus(calculateBonus(500))}>500 EUR</button>
+          <button onClick={() => setTotalBonus(calculateBonus(1000))}>1000 EUR</button>
+          <button onClick={() => setTotalBonus(calculateBonus(1500))}>1500 EUR</button>
+        </div>
+
+        <div>
+          <h3>Структурный бонус: €{totalBonus.toFixed(2)}</h3>
+        </div>
+      </div>
+    );
+  };
+
+  ReactDOM.render(<MLMCalculator />, document.getElementById('root'));
+</script>
 
 </body>
-
 </html>
